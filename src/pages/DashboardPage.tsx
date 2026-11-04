@@ -13,6 +13,7 @@ import {
 import {
   archiveSurvey,
   deleteSurvey,
+  duplicateSurvey,
   listSurveys,
   unarchiveSurvey,
   type SurveyStatus,
@@ -139,10 +140,25 @@ export default function DashboardPage() {
     navigate('/login', { replace: true })
   }
 
+  async function handleDuplicate(survey: SurveySummary) {
+    setBusy(true)
+    try {
+      const newId = await duplicateSurvey(survey.id)
+      navigate(`/surveys/${newId}/edit`)
+    } catch (err) {
+      setActionError(toUserMessage(err))
+      setBusy(false)
+    }
+  }
+
   function handleAction(action: SurveyAction, survey: SurveySummary) {
     setActionError(null)
     if (action === 'archive' || action === 'unarchive' || action === 'delete') {
       setPending({ kind: action, survey })
+    } else if (action === 'edit') {
+      navigate(`/surveys/${survey.id}/edit`)
+    } else if (action === 'duplicate') {
+      void handleDuplicate(survey)
     }
   }
 
@@ -241,8 +257,7 @@ export default function DashboardPage() {
             <button
               type="button"
               className={buttonStyles.primary}
-              disabled
-              title="Available after the survey editor is built"
+              onClick={() => navigate('/surveys/new')}
             >
               New Survey
             </button>
@@ -369,8 +384,7 @@ export default function DashboardPage() {
               <button
                 type="button"
                 className={`${buttonStyles.primary} mt-4`}
-                disabled
-                title="Available after the survey editor is built"
+                onClick={() => navigate('/surveys/new')}
               >
                 Create Your First Survey
               </button>

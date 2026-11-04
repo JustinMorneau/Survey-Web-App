@@ -194,7 +194,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      duplicate_survey: { Args: { p_survey_id: string }; Returns: string }
+      save_survey: {
+        Args: {
+          p_description: string
+          p_questions: Json
+          p_survey_id?: string
+          p_title: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
