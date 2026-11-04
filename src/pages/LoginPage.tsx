@@ -2,11 +2,13 @@ import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router'
 import { buttonStyles, inputStyles, labelStyles } from '../components/styles'
 import { isNetworkError, toUserMessage } from '../lib/errors'
+import { usePageTitle } from '../lib/usePageTitle'
 import { useAuth } from '../lib/useAuth'
 
 type LocationState = { from?: string } | null
 
 export default function LoginPage() {
+  usePageTitle('Instructor Login')
   const { session, loading, signIn } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()

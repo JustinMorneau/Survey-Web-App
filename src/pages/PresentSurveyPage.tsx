@@ -5,6 +5,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import { buttonStyles } from '../components/styles'
 import { toUserMessage } from '../lib/errors'
 import { getSurveyUrl } from '../lib/publicUrl'
+import { usePageTitle } from '../lib/usePageTitle'
 import { closeSurvey, getPresentSurvey, type PresentSurvey } from '../lib/surveys'
 
 const POLL_INTERVAL_MS = 5000
@@ -29,6 +30,7 @@ export default function PresentSurveyPage() {
   const isActive = survey?.status === 'active'
   const slug = survey?.publicSlug ?? null
   const surveyUrl = slug ? getSurveyUrl(slug) : null
+  usePageTitle(survey ? `Present: ${survey.title}` : 'Present')
 
   // Load, then poll status and response count every 5 s while the tab is visible (D11).
   useEffect(() => {

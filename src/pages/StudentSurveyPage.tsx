@@ -10,6 +10,7 @@ import {
   submitSurveyResponse,
   type PublicSurvey,
 } from '../lib/studentSurvey'
+import { usePageTitle } from '../lib/usePageTitle'
 
 type PageState =
   | { kind: 'loading' }
@@ -33,6 +34,7 @@ export default function StudentSurveyPage() {
   const [showMissing, setShowMissing] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  usePageTitle(state.kind === 'form' ? state.survey.title : 'Survey')
 
   useEffect(() => {
     let cancelled = false
@@ -98,7 +100,8 @@ export default function StudentSurveyPage() {
     if (missing.length > 0) {
       setShowMissing(true)
       const first = document.getElementById(questionId(missing[0].id))
-      first?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      first?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' })
       first?.querySelector('input')?.focus({ preventScroll: true })
       return
     }

@@ -1,17 +1,19 @@
-import { StrictMode } from 'react'
+import { StrictMode, Suspense, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router'
 import AuthProvider from './components/AuthProvider'
+import PageLoading from './components/PageLoading'
 import ProtectedRoute from './components/ProtectedRoute'
-import DashboardPage from './pages/DashboardPage'
+import { DashboardPage, PresentSurveyPage, ResultsPage, SurveyEditorPage } from './lazyPages'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
-import PresentSurveyPage from './pages/PresentSurveyPage'
-import ResultsPage from './pages/ResultsPage'
 import StudentSurveyPage from './pages/StudentSurveyPage'
-import SurveyEditorPage from './pages/SurveyEditorPage'
 import './index.css'
+
+function withLoading(page: ReactNode) {
+  return <Suspense fallback={<PageLoading />}>{page}</Suspense>
+}
 
 // A data router (createBrowserRouter) is required for useBlocker,
 // which the survey editor uses to warn about unsaved changes.
@@ -22,11 +24,11 @@ const router = createBrowserRouter([
   {
     element: <ProtectedRoute />,
     children: [
-      { path: '/dashboard', element: <DashboardPage /> },
-      { path: '/surveys/new', element: <SurveyEditorPage /> },
-      { path: '/surveys/:id/edit', element: <SurveyEditorPage /> },
-      { path: '/surveys/:id/present', element: <PresentSurveyPage /> },
-      { path: '/surveys/:id/results', element: <ResultsPage /> },
+      { path: '/dashboard', element: withLoading(<DashboardPage />) },
+      { path: '/surveys/new', element: withLoading(<SurveyEditorPage />) },
+      { path: '/surveys/:id/edit', element: withLoading(<SurveyEditorPage />) },
+      { path: '/surveys/:id/present', element: withLoading(<PresentSurveyPage />) },
+      { path: '/surveys/:id/results', element: withLoading(<ResultsPage />) },
     ],
   },
   { path: '*', element: <NotFoundPage /> },

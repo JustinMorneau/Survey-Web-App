@@ -21,6 +21,7 @@ import {
   type SurveyStatus,
   type SurveySummary,
 } from '../lib/surveys'
+import { usePageTitle } from '../lib/usePageTitle'
 import { useAuth } from '../lib/useAuth'
 
 type LoadState =
@@ -67,6 +68,7 @@ function formatResponses(count: number): string {
 }
 
 export default function DashboardPage() {
+  usePageTitle('Dashboard')
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
 

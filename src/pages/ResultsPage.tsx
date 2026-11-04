@@ -5,6 +5,7 @@ import StatusBadge from '../components/StatusBadge'
 import { buttonStyles } from '../components/styles'
 import { toUserMessage } from '../lib/errors'
 import { exportSurveyCsv, getSurveyResults, type SurveyResults } from '../lib/results'
+import { usePageTitle } from '../lib/usePageTitle'
 
 type LoadState =
   | { kind: 'loading' }
@@ -22,6 +23,7 @@ export default function ResultsPage() {
   const [refreshing, setRefreshing] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
+  usePageTitle(loadState.kind === 'ready' ? `Results: ${loadState.results.title}` : 'Results')
 
   useEffect(() => {
     let cancelled = false

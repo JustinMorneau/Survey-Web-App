@@ -1,6 +1,8 @@
 import { Link } from 'react-router'
+import { usePageTitle } from '../lib/usePageTitle'
 
 export default function HomePage() {
+  usePageTitle('')
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-md text-center">

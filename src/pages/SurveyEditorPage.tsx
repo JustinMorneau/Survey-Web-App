@@ -5,6 +5,7 @@ import QuestionEditor from '../components/QuestionEditor'
 import StatusBadge from '../components/StatusBadge'
 import { buttonStyles, inputStyles, labelStyles } from '../components/styles'
 import { toUserMessage } from '../lib/errors'
+import { usePageTitle } from '../lib/usePageTitle'
 import {
   createChoice,
   createQuestion,
@@ -68,6 +69,7 @@ function moveItem<T>(items: T[], index: number, direction: -1 | 1): T[] {
 }
 
 function SurveyEditor({ surveyId }: { surveyId: string | null }) {
+  usePageTitle(surveyId ? 'Edit Survey' : 'New Survey')
   const navigate = useNavigate()
   const location = useLocation()
   const arrivedAfterSave = (location.state as { saved?: boolean } | null)?.saved === true
