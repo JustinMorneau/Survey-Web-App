@@ -470,14 +470,15 @@ submit_survey_response(
 
 Declared `security definer` with `set search_path = ''`, using schema-qualified table names. In one transaction:
 
-1. raise `SURVEY_NOT_FOUND` if the survey does not exist;
+1. raise `SURVEY_NOT_FOUND` if the survey does not exist (the row is read `for share`, so a concurrent `close_survey` waits for in-flight submissions);
 2. raise `SURVEY_NOT_ACTIVE` if it is not Active;
-3. raise `INVALID_QUESTION` if any `question_id` does not belong to the survey;
-4. raise `INVALID_CHOICE` if any `choice_id` does not belong to its question;
-5. raise `MISSING_REQUIRED_ANSWER` unless every question has exactly one answer;
-6. insert the response; a unique-index violation raises `DUPLICATE_RESPONSE`;
-7. insert all answers;
-8. return `{"success": true, "response_id": "<uuid>"}`.
+3. raise `INVALID_TOKEN` if the token is blank or longer than 200 characters;
+4. raise `INVALID_QUESTION` if any `question_id` is malformed, repeated, or does not belong to the survey;
+5. raise `INVALID_CHOICE` if any `choice_id` is malformed or does not belong to its question;
+6. raise `MISSING_REQUIRED_ANSWER` unless every question has exactly one answer;
+7. insert the response; a unique-index violation raises `DUPLICATE_RESPONSE`;
+8. insert all answers;
+9. return `{"success": true, "response_id": "<uuid>"}`.
 
 ## get_survey_results (D10)
 

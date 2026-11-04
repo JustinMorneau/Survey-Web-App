@@ -223,6 +223,14 @@ export type Database = {
         }
         Returns: string
       }
+      submit_survey_response: {
+        Args: {
+          p_anonymous_token: string
+          p_answers: Json
+          p_survey_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

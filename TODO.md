@@ -165,37 +165,37 @@ Decisions: D2, D3, D5, D7, D11, D12
 
 ## Database
 
-- [ ] Write `0004_activation.sql` with `activate_survey` and `close_survey` (`DATABASE.md` §10).
-- [ ] Generate slugs per D2, retrying on collision and keeping them on reactivation.
-- [ ] Revoke execute on both from `public` and `anon` (D7).
-- [ ] Apply the migration and regenerate `database.types.ts`.
-- [ ] Run `supabase/tests/phase4_rpc_check.sql`.
+- [x] Write `0004_activation.sql` with `activate_survey` and `close_survey` (`DATABASE.md` §10).
+- [x] Generate slugs per D2, retrying on collision and keeping them on reactivation.
+- [x] Revoke execute on both from `public` and `anon` (D7).
+- [x] Apply the migration and regenerate `database.types.ts`.
+- [x] Run `supabase/tests/phase4_rpc_check.sql`.
 
 ## Interface
 
-- [ ] Add Activate, Reopen, Present, and Close actions to the dashboard.
-- [ ] Confirm before activating when another survey is Active.
-- [ ] Add a placeholder `/s/:slug` page so QR codes can be tested before Phase 5.
-- [ ] Make the editor's Activate button save first, then activate.
-- [ ] Create the Present Survey page.
-- [ ] Build the public URL from `VITE_PUBLIC_SITE_URL` (D12).
-- [ ] Generate and display a large QR code.
-- [ ] Display the readable fallback URL.
-- [ ] Show the response count, polling every 5 seconds while visible (D11).
-- [ ] Add a Download QR Code (PNG) button.
-- [ ] Add a Close Survey button with confirmation.
-- [ ] Optimize the page for full-screen projection.
+- [x] Add Activate, Reopen, Present, and Close actions to the dashboard.
+- [x] Confirm before activating when another survey is Active.
+- [x] Add a placeholder `/s/:slug` page so QR codes can be tested before Phase 5.
+- [x] Make the editor's Activate button save first, then activate.
+- [x] Create the Present Survey page.
+- [x] Build the public URL from `VITE_PUBLIC_SITE_URL` (D12).
+- [x] Generate and display a large QR code.
+- [x] Display the readable fallback URL.
+- [x] Show the response count, polling every 5 seconds while visible (D11).
+- [x] Add a Download QR Code (PNG) button.
+- [x] Add a Close Survey button with confirmation.
+- [x] Optimize the page for full-screen projection.
 
 ## Verify & Commit
 
-- [ ] Activating survey A and then survey B leaves A Closed and B Active, and only one survey is Active.
-- [ ] Reactivating a Closed survey keeps its original slug.
-- [ ] Activating a survey with no questions shows "Add at least one question before activating."
-- [ ] Calling `activate_survey` or `close_survey` with the anon key fails.
-- [ ] The QR code scanned with a real phone opens the production URL.
-- [ ] The downloaded PNG scans correctly.
-- [ ] The present page is readable full-screen on a projector-sized display.
-- [ ] Commit and push.
+- [x] Activating survey A and then survey B leaves A Closed and B Active, and only one survey is Active.
+- [x] Reactivating a Closed survey keeps its original slug.
+- [x] Activating a survey with no questions shows "Add at least one question before activating."
+- [x] Calling `activate_survey` or `close_survey` with the anon key fails.
+- [x] The QR code scanned with a real phone opens the production URL.
+- [x] The downloaded PNG scans correctly.
+- [x] The present page is readable full-screen on a projector-sized display.
+- [x] Commit and push.
 
 ---
 
@@ -207,10 +207,12 @@ Decisions: D2, D5, D7, D8, D9
 
 - [ ] Write `0005_submission.sql` with `submit_survey_response` as `security definer` with `set search_path = ''` (`DATABASE.md` §10).
 - [ ] Grant execute to `anon` and `authenticated`; revoke from `public`.
+- [ ] Apply the migration and regenerate `database.types.ts`.
+- [ ] Run `supabase/tests/phase5_rpc_check.sql`.
 
 ## Student page
 
-- [ ] Create the public route `/s/:slug`.
+- [ ] Replace the `/s/:slug` placeholder with the real student page.
 - [ ] Load the active survey by slug.
 - [ ] Show "no longer accepting responses" when no Active survey matches.
 - [ ] Render title, description, and both question types.

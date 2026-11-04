@@ -107,19 +107,20 @@ Students do not authenticate.
 
 Database functions raise exceptions whose message is one of these codes. The frontend reads `error.message`, maps the code to a UI message (`UI.md` §17), and shows a generic message for anything unknown. Raw database errors are never shown.
 
-| Code                        | Raised by                      | Meaning                                    |
-| --------------------------- | ------------------------------ | ------------------------------------------ |
-| `SURVEY_NOT_FOUND`          | all survey RPCs                | No survey with that ID                     |
-| `SURVEY_NOT_ACTIVE`         | `submit_survey_response`       | Survey is not accepting responses          |
-| `SURVEY_ACTIVE`             | `save_survey`                  | Active surveys cannot be edited            |
-| `SURVEY_LOCKED`             | `save_survey`                  | Survey has responses; questions are locked |
-| `SURVEY_HAS_NO_QUESTIONS`   | `activate_survey`              | Survey needs at least one question         |
-| `INVALID_STATUS_TRANSITION` | status trigger, `close_survey` | Lifecycle rule violated (D3)               |
-| `VALIDATION_FAILED`         | `save_survey`                  | Question rules violated (D5)               |
-| `DUPLICATE_RESPONSE`        | `submit_survey_response`       | This browser already submitted             |
-| `INVALID_QUESTION`          | `submit_survey_response`       | Question not in this survey                |
-| `INVALID_CHOICE`            | `submit_survey_response`       | Choice not in its question                 |
-| `MISSING_REQUIRED_ANSWER`   | `submit_survey_response`       | Not every question answered                |
+| Code                        | Raised by                      | Meaning                                           |
+| --------------------------- | ------------------------------ | ------------------------------------------------- |
+| `SURVEY_NOT_FOUND`          | all survey RPCs                | No survey with that ID                            |
+| `SURVEY_NOT_ACTIVE`         | `submit_survey_response`       | Survey is not accepting responses                 |
+| `SURVEY_ACTIVE`             | `save_survey`                  | Active surveys cannot be edited                   |
+| `SURVEY_LOCKED`             | `save_survey`                  | Survey has responses; questions are locked        |
+| `SURVEY_HAS_NO_QUESTIONS`   | `activate_survey`              | Survey needs at least one question                |
+| `INVALID_STATUS_TRANSITION` | status trigger, `close_survey` | Lifecycle rule violated (D3)                      |
+| `VALIDATION_FAILED`         | `save_survey`                  | Question rules violated (D5)                      |
+| `DUPLICATE_RESPONSE`        | `submit_survey_response`       | This browser already submitted                    |
+| `INVALID_QUESTION`          | `submit_survey_response`       | Question not in this survey                       |
+| `INVALID_CHOICE`            | `submit_survey_response`       | Choice not in its question                        |
+| `MISSING_REQUIRED_ANSWER`   | `submit_survey_response`       | Not every question answered                       |
+| `INVALID_TOKEN`             | `submit_survey_response`       | Browser token blank or longer than 200 characters |
 
 ---
 
@@ -374,7 +375,7 @@ Success response:
 }
 ```
 
-Errors: `SURVEY_NOT_FOUND`, `SURVEY_NOT_ACTIVE`, `DUPLICATE_RESPONSE`, `INVALID_QUESTION`, `INVALID_CHOICE`, `MISSING_REQUIRED_ANSWER`.
+Errors: `SURVEY_NOT_FOUND`, `SURVEY_NOT_ACTIVE`, `INVALID_TOKEN`, `DUPLICATE_RESPONSE`, `INVALID_QUESTION`, `INVALID_CHOICE`, `MISSING_REQUIRED_ANSWER`.
 
 On `DUPLICATE_RESPONSE`, also set `cs_submitted_<surveyId>`.
 
