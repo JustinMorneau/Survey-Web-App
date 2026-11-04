@@ -20,50 +20,55 @@ Decisions: D1, D3, D7, D8, D12, D14
 
 ## Project setup
 
-- [ ] Create a new React + TypeScript project with Vite.
-- [ ] Add Tailwind CSS.
-- [ ] Add React Router.
-- [ ] Add the Supabase JavaScript client.
-- [ ] Add Recharts.
-- [ ] Add the `qrcode` package.
-- [ ] Create the folder structure from the specification §8.
-- [ ] Add `.env.example` with `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_PUBLIC_SITE_URL`.
-- [ ] Configure ESLint and formatting.
-- [ ] Create a basic home page.
-- [ ] Add `public/_redirects` for SPA routing.
+- [x] Create a new React + TypeScript project with Vite.
+- [x] Pin TypeScript to `~6.0.0` (`typescript-eslint` does not support TypeScript 7 yet).
+- [x] Add Tailwind CSS.
+- [x] Add React Router.
+- [x] Add the Supabase JavaScript client.
+- [x] Add Recharts.
+- [x] Add the `qrcode` package.
+- [x] Create the folder structure from the specification §8.
+- [x] Add `.env.example` with `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_PUBLIC_SITE_URL`.
+- [x] Create `.env.local` with the real values (ignored by git).
+- [x] Configure ESLint and formatting.
+- [x] Create a basic home page.
+- [x] Add `wrangler.jsonc` with `./dist` assets and single-page-application routing.
 
 ## Supabase and database
 
-- [ ] Create a Supabase project.
-- [ ] Disable public sign-ups and create the instructor account manually (D7).
-- [ ] Write `0001_schema.sql`: all five tables, constraints, indexes, the required token unique index (D8), and the `only_one_active_survey` index.
-- [ ] Add the `updated_at` trigger and the status-transition trigger (D3).
-- [ ] Write `0002_rls.sql`: enable RLS, anon read policies, authenticated policies (`DATABASE.md` §9).
-- [ ] Apply both migrations (D14).
-- [ ] Generate TypeScript types from the schema (`supabase gen types`).
-- [ ] Create the shared Supabase client in `src/lib/`.
+- [x] Create a Supabase project.
+- [x] Disable public sign-ups and create the instructor account manually (D7).
+- [x] Write `0001_schema.sql`: all five tables, constraints, indexes, table privileges, the required token unique index (D8), and the `only_one_active_survey` index.
+- [x] Add the `updated_at` trigger and the status-transition trigger (D3).
+- [x] Write `0002_rls.sql`: enable RLS, anon read policies, authenticated policies (`DATABASE.md` §9).
+- [x] Apply both migrations in the SQL Editor (D14).
+- [x] Generate TypeScript types from the schema (`supabase gen types`) after the migrations are applied.
+- [x] Create the shared Supabase client in `src/lib/`.
 
 ## Deployment pipeline
 
-- [ ] Push the project to GitHub.
-- [ ] Create the Cloudflare Pages site and connect it to the repository.
-- [ ] Configure production environment variables.
-- [ ] Deploy the application.
+- [x] Push the project to GitHub.
+- [x] Create the Cloudflare Worker (`survey-web-app`) and connect it to the repository.
+- [x] Configure the Workers Builds API token.
+- [x] Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as **build** variables.
+- [x] Deploy the application.
+- [x] Add `VITE_PUBLIC_SITE_URL` (the `workers.dev` URL) as a build variable and rebuild.
 
 ## Verify & Commit
 
-- [ ] `npm run build` and lint pass with no errors.
-- [ ] The production URL loads the home page.
-- [ ] Refreshing a deep link (for example `/login`) does not return 404.
-- [ ] Save RLS checks as a script in `supabase/tests/`. Using a test Active survey and the anon key:
-  - [ ] anon can read the active survey and its questions and choices;
-  - [ ] anon cannot read Draft, Closed, or Archived surveys;
-  - [ ] anon cannot read responses or answers;
-  - [ ] anon cannot insert into any table.
-- [ ] Authenticated users can read and write all tables.
-- [ ] An invalid status change (for example Draft → Closed) fails with `INVALID_STATUS_TRANSITION`.
-- [ ] Attempting to sign up a new user is rejected.
-- [ ] Commit and push.
+- [x] `npm run build` and lint pass with no errors.
+- [x] The `workers.dev` URL loads the home page.
+- [x] Refreshing a deep link (for example `/login`) does not return 404.
+- [x] Save RLS checks as a script in `supabase/tests/`. Using a test Active survey and the anon key:
+  - [x] anon can read the active survey and its questions and choices;
+  - [x] anon cannot read Draft, Closed, or Archived surveys;
+  - [x] anon cannot read responses or answers;
+  - [x] anon cannot insert into any table.
+- [x] Authenticated users can read and write all tables.
+- [x] An invalid status change (for example Draft → Closed) fails with `INVALID_STATUS_TRANSITION`.
+- [x] Attempting to sign up a new user is rejected.
+- [x] The anon key cannot read `responses` through the REST API.
+- [x] Commit and push.
 
 ---
 
@@ -73,39 +78,39 @@ Decisions: D3, D9, D16
 
 ## Authentication
 
-- [ ] Create the instructor login page.
-- [ ] Connect login to Supabase Auth.
-- [ ] Add logout.
-- [ ] Create an authentication context/provider.
-- [ ] Create a protected-route component.
-- [ ] Redirect unauthenticated users and expired sessions to `/login`.
-- [ ] Show the logged-in instructor in the dashboard header.
+- [x] Create the instructor login page.
+- [x] Connect login to Supabase Auth.
+- [x] Add logout.
+- [x] Create an authentication context/provider.
+- [x] Create a protected-route component.
+- [x] Redirect unauthenticated users and expired sessions to `/login`.
+- [x] Show the logged-in instructor in the dashboard header.
 
 ## Dashboard
 
-- [ ] Create the dashboard layout.
-- [ ] Load surveys with their response counts.
-- [ ] Display title, status badge (text, not only color), creation date, and response count.
-- [ ] Add a New Survey button.
-- [ ] Add search by title.
-- [ ] Add the status filter, defaulting to "All except Archived" (D3).
-- [ ] Add the creation-date filter (D16).
-- [ ] Show only the actions allowed for each status (`UI.md` §4).
-- [ ] Add Archive and Unarchive actions with confirmation.
-- [ ] Add Delete with the standard and stronger confirmation dialogs (`UI.md` §11).
-- [ ] Add empty states for "no surveys" and "no search results".
-- [ ] Create the shared error-code-to-message mapper (`UI.md` §17, D9).
+- [x] Create the dashboard layout.
+- [x] Load surveys with their response counts.
+- [x] Display title, status badge (text, not only color), creation date, and response count.
+- [x] Add a New Survey button.
+- [x] Add search by title.
+- [x] Add the status filter, defaulting to "All except Archived" (D3).
+- [x] Add the creation-date filter (D16).
+- [x] Show only the actions allowed for each status (`UI.md` §4).
+- [x] Add Archive and Unarchive actions with confirmation.
+- [x] Add Delete with the standard and stronger confirmation dialogs (`UI.md` §11).
+- [x] Add empty states for "no surveys" and "no search results".
+- [x] Create the shared error-code-to-message mapper (`UI.md` §17, D9).
 
 ## Verify & Commit
 
-- [ ] Log in, log out, and confirm a page refresh keeps the session.
-- [ ] A wrong password shows a friendly error.
-- [ ] Visiting `/dashboard` while logged out redirects to `/login`.
-- [ ] Search, status filter, and date filter work together.
-- [ ] Archive and Unarchive work, each with a confirmation.
-- [ ] Deleting a survey removes its questions, choices, and responses.
-- [ ] An Active survey offers no Delete or Archive action.
-- [ ] Commit and push.
+- [x] Log in, log out, and confirm a page refresh keeps the session.
+- [x] A wrong password shows a friendly error.
+- [x] Visiting `/dashboard` while logged out redirects to `/login`.
+- [x] Search, status filter, and date filter work together.
+- [x] Archive and Unarchive work, each with a confirmation.
+- [x] Deleting a survey removes its questions, choices, and responses.
+- [x] An Active survey offers no Delete or Archive action.
+- [x] Commit and push.
 
 ---
 
@@ -292,6 +297,7 @@ Decisions: D15, D17, D18
 - [ ] Write and run the 200-concurrent-submission script in `scripts/` (D18).
 - [ ] Confirm mobile page load is under 2 seconds with Lighthouse.
 - [ ] Re-run the RLS and permission scripts against production.
+- [ ] Re-run the sign-up `curl` with a real-domain address (for example a `+signuptest` alias) and confirm it returns `signup_disabled`.
 - [ ] Write `README.md` with setup, migration, and deployment steps.
 - [ ] Document the Supabase free-tier pause behavior in the README (D17).
 - [ ] Commit, push, and tag `v1.0`.
