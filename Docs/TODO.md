@@ -243,39 +243,39 @@ Decisions: D7, D10, D13, D15, D16
 
 ## Database
 
-- [ ] Write `0006_results.sql` with `get_survey_results` (`DATABASE.md` §10).
-- [ ] Revoke execute from `public` and `anon`.
+- [x] Write `0006_results.sql` with `get_survey_results` (`DATABASE.md` §10).
+- [x] Revoke execute from `public` and `anon`.
 
 ## Results
 
-- [ ] Create the results page for each survey.
-- [ ] Add the View Results action to the dashboard and the Present page.
-- [ ] Show the total response count and status.
-- [ ] Show each question's answered count.
-- [ ] Show count and percentage for each choice (D10).
-- [ ] Add horizontal bar charts with counts and percentages as text.
-- [ ] Add the "No responses yet" empty state.
-- [ ] Add Refresh, Back to Dashboard, and Present QR (Active only) buttons.
-- [ ] Confirm results work for Closed and Archived surveys.
+- [x] Create the results page for each survey.
+- [x] Add the View Results action to the dashboard and the Present page.
+- [x] Show the total response count and status.
+- [x] Show each question's answered count.
+- [x] Show count and percentage for each choice (D10).
+- [x] Add horizontal bar charts with counts and percentages as text.
+- [x] Add the "No responses yet" empty state.
+- [x] Add Refresh, Back to Dashboard, and Present QR (Active only) buttons.
+- [x] Confirm results work for Closed and Archived surveys.
 
 ## CSV export
 
-- [ ] Add the Export CSV button.
-- [ ] Export one row per response with `response_id` and ISO `submitted_at`.
-- [ ] Add one column per question with choice text in each cell.
-- [ ] Name the file `<title-slug>_<YYYY-MM-DD>.csv`.
-- [ ] Escape quotes, commas, and line breaks.
-- [ ] Prefix cells starting with `= + - @` with `'`.
-- [ ] Write UTF-8 with a BOM.
-- [ ] (Optional) Add Vitest tests for the CSV builder and percentage calculation (D15).
+- [x] Add the Export CSV button.
+- [x] Export one row per response with `response_id` and ISO `submitted_at`.
+- [x] Add one column per question with choice text in each cell.
+- [x] Name the file `<title-slug>_<YYYY-MM-DD>.csv`.
+- [x] Escape quotes, commas, and line breaks.
+- [x] Prefix cells starting with `= + - @` with `'`.
+- [x] Write UTF-8 with a BOM.
+- [x] (Optional) Add Vitest tests for the CSV builder and percentage calculation (D15).
 
 ## Verify & Commit
 
-- [ ] Counts match a manual SQL count, and percentages sum to about 100% per question.
-- [ ] Closed and Archived surveys show results.
-- [ ] The CSV opens correctly in Excel and Google Sheets, including text with commas, quotes, line breaks, and non-English characters.
-- [ ] Calling `get_survey_results` with the anon key fails.
-- [ ] Commit and push.
+- [x] Counts match a manual SQL count, and percentages sum to about 100% per question.
+- [x] Closed and Archived surveys show results.
+- [x] The CSV opens correctly in Excel and Google Sheets, including text with commas, quotes, line breaks, and non-English characters.
+- [x] Calling `get_survey_results` with the anon key fails.
+- [x] Commit and push.
 
 ---
 
@@ -285,25 +285,25 @@ Decisions: D15, D17, D18
 
 ## Polish and accessibility
 
-- [ ] Make page layouts consistent.
-- [ ] Review mobile, tablet, and desktop layouts (`UI.md` §12).
-- [ ] Confirm every async page has a loading state and every mutation button disables while running.
-- [ ] Confirm every page has its empty and error states.
-- [ ] Check color contrast.
-- [ ] Test keyboard navigation and visible focus on every page.
-- [ ] Confirm labels, `fieldset`/`legend` for radio groups, and field-linked error messages.
+- [x] Make page layouts consistent.
+- [x] Review mobile, tablet, and desktop layouts (`UI.md` §12).
+- [x] Confirm every async page has a loading state and every mutation button disables while running.
+- [x] Confirm every page has its empty and error states.
+- [x] Check color contrast.
+- [x] Test keyboard navigation and visible focus on every page.
+- [x] Confirm labels, `fieldset`/`legend` for radio groups, and field-linked error messages.
 
 ## Release check (production)
 
-- [ ] Do a full classroom rehearsal: create, activate, submit from at least 3 devices, view results, export CSV, close, archive.
-- [ ] Verify production login, submissions, and results.
-- [ ] Write and run the 200-concurrent-submission script in `scripts/` (D18).
-- [ ] Confirm mobile page load is under 2 seconds with Lighthouse.
-- [ ] Re-run the RLS and permission scripts against production.
-- [ ] Re-run the sign-up `curl` with a real-domain address (for example a `+signuptest` alias) and confirm it returns `signup_disabled`.
-- [ ] Write `README.md` with setup, migration, and deployment steps.
-- [ ] Document the Supabase free-tier pause behavior in the README (D17).
-- [ ] Commit, push, and tag `v1.0`.
+- [x] Do a full classroom rehearsal: create, activate, submit from at least 3 devices, view results, export CSV, close, archive.
+- [x] Verify production login, submissions, and results.
+- [x] Write and run the 200-concurrent-submission script in `scripts/` (D18).
+- [x] Confirm mobile page load is under 2 seconds with Lighthouse.
+- [x] Re-run the RLS and permission scripts against production.
+- [x] Re-run the sign-up `curl` with a real-domain address (for example a `+signuptest` alias) and confirm it returns `signup_disabled`.
+- [x] Write `README.md` with setup, migration, and deployment steps.
+- [x] Document the Supabase free-tier pause behavior in the README (D17).
+- [x] Commit, push, and tag `v1.0`.
 
 ---
 
