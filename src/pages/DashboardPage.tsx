@@ -11,7 +11,9 @@ import {
   type SurveyAction,
 } from '../lib/surveyActions'
 import {
+  activateSurvey,
   archiveSurvey,
+  closeSurvey,
   deleteSurvey,
   duplicateSurvey,
   listSurveys,
@@ -28,9 +30,14 @@ type LoadState =
 
 type StatusFilter = 'not_archived' | 'all' | SurveyStatus
 
-type ConfirmKind = 'archive' | 'unarchive' | 'delete'
+type ConfirmKind = 'archive' | 'unarchive' | 'delete' | 'activate' | 'close'
 
-type PendingConfirm = { kind: ConfirmKind; survey: SurveySummary }
+type PendingConfirm = {
+  kind: ConfirmKind
+  survey: SurveySummary
+  /** For 'activate': the survey that will be closed. */
+  currentlyActive?: SurveySummary
+}
 
 const STATUS_FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'not_archived', label: 'All except Archived' },
@@ -151,10 +158,37 @@ export default function DashboardPage() {
     }
   }
 
+  async function activateAndPresent(survey: SurveySummary) {
+    setBusy(true)
+    try {
+      await activateSurvey(survey.id)
+      navigate(`/surveys/${survey.id}/present`)
+    } catch (err) {
+      setPending(null)
+      setActionError(toUserMessage(err))
+      setBusy(false)
+    }
+  }
+
   function handleAction(action: SurveyAction, survey: SurveySummary) {
     setActionError(null)
-    if (action === 'archive' || action === 'unarchive' || action === 'delete') {
+    if (
+      action === 'archive' ||
+      action === 'unarchive' ||
+      action === 'delete' ||
+      action === 'close'
+    ) {
       setPending({ kind: action, survey })
+    } else if (action === 'activate' || action === 'reopen') {
+      // Activating closes the current Active survey (D3), so confirm when there is one.
+      const currentlyActive = surveys.find((s) => s.status === 'active' && s.id !== survey.id)
+      if (currentlyActive) {
+        setPending({ kind: 'activate', survey, currentlyActive })
+      } else {
+        void activateAndPresent(survey)
+      }
+    } else if (action === 'present') {
+      navigate(`/surveys/${survey.id}/present`)
     } else if (action === 'edit') {
       navigate(`/surveys/${survey.id}/edit`)
     } else if (action === 'duplicate') {
@@ -164,11 +198,16 @@ export default function DashboardPage() {
 
   async function runConfirmed(kind: ConfirmKind) {
     if (!pending) return
+    if (kind === 'activate') {
+      await activateAndPresent(pending.survey)
+      return
+    }
     const surveyId = pending.survey.id
     setBusy(true)
     try {
       if (kind === 'archive') await archiveSurvey(surveyId)
       if (kind === 'unarchive') await unarchiveSurvey(surveyId)
+      if (kind === 'close') await closeSurvey(surveyId)
       if (kind === 'delete') await deleteSurvey(surveyId)
       setPending(null)
       await loadSurveys()
@@ -186,7 +225,20 @@ export default function DashboardPage() {
     let body: ReactNode
     let actions: DialogAction[]
 
-    if (kind === 'archive') {
+    if (kind === 'activate') {
+      title = `Activate "${survey.title}"?`
+      body = (
+        <p>
+          &ldquo;{confirm.currentlyActive?.title}&rdquo; is active now. Activating this survey
+          closes it, and students can no longer submit responses to it.
+        </p>
+      )
+      actions = [{ label: 'Activate', variant: 'primary', onClick: () => runConfirmed('activate') }]
+    } else if (kind === 'close') {
+      title = `Close "${survey.title}"?`
+      body = <p>Students will no longer be able to submit responses. You can reopen it later.</p>
+      actions = [{ label: 'Close Survey', variant: 'danger', onClick: () => runConfirmed('close') }]
+    } else if (kind === 'archive') {
       title = `Archive "${survey.title}"?`
       body = (
         <p>

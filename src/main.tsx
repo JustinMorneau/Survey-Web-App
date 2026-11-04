@@ -7,6 +7,8 @@ import DashboardPage from './pages/DashboardPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
+import PresentSurveyPage from './pages/PresentSurveyPage'
+import StudentSurveyPage from './pages/StudentSurveyPage'
 import SurveyEditorPage from './pages/SurveyEditorPage'
 import './index.css'
 
@@ -15,12 +17,14 @@ import './index.css'
 const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/s/:slug', element: <StudentSurveyPage /> },
   {
     element: <ProtectedRoute />,
     children: [
       { path: '/dashboard', element: <DashboardPage /> },
       { path: '/surveys/new', element: <SurveyEditorPage /> },
       { path: '/surveys/:id/edit', element: <SurveyEditorPage /> },
+      { path: '/surveys/:id/present', element: <PresentSurveyPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },

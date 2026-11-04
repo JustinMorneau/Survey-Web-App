@@ -194,6 +194,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_survey: {
+        Args: { p_survey_id: string }
+        Returns: {
+          created_at: string
+          description: string | null
+          id: string
+          public_slug: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "surveys"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      close_survey: { Args: { p_survey_id: string }; Returns: undefined }
       duplicate_survey: { Args: { p_survey_id: string }; Returns: string }
       save_survey: {
         Args: {

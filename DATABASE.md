@@ -437,18 +437,18 @@ Creates a Draft titled `Copy of <title>`, copies the description, questions, and
 
 ```sql
 activate_survey(p_survey_id uuid)
-returns table (id uuid, status text, public_slug text)
+returns public.surveys
 ```
 
 In one transaction:
 
 1. raise `SURVEY_NOT_FOUND` if the survey does not exist;
-2. raise `SURVEY_HAS_NO_QUESTIONS` if it has no questions;
-3. if it is already Active, return it unchanged;
-4. close the currently Active survey, if any;
-5. generate `public_slug` if null;
-6. set status to `active` (the trigger raises `INVALID_STATUS_TRANSITION` for Archived surveys);
-7. return the survey.
+2. if it is already Active, return it unchanged;
+3. raise `INVALID_STATUS_TRANSITION` unless it is Draft or Closed;
+4. raise `SURVEY_HAS_NO_QUESTIONS` if it has no questions;
+5. generate `public_slug` if null, from `gen_random_uuid()` bytes (cryptographically random, no extension needed), retrying on collision;
+6. close the currently Active survey, if any;
+7. set status to `active` and return the updated survey row.
 
 ## close_survey
 

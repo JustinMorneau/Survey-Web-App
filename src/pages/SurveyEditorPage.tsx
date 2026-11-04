@@ -23,7 +23,9 @@ import {
 } from '../lib/surveyEditor'
 import {
   QUESTION_TYPE_LABELS,
+  activateSurvey,
   duplicateSurvey,
+  getActiveSurvey,
   getSurveyForEdit,
   saveSurvey,
   updateSurveyDetails,
@@ -53,6 +55,7 @@ type SaveState =
 type PendingConfirm =
   | { kind: 'deleteQuestion'; questionKey: string; number: number }
   | { kind: 'toTrueFalse'; questionKey: string; number: number }
+  | { kind: 'activate'; surveyId: string; activeTitle: string }
 
 const EMPTY_ERRORS: ValidationErrors = { questions: {} }
 
@@ -83,9 +86,13 @@ function SurveyEditor({ surveyId }: { surveyId: string | null }) {
   const [pending, setPending] = useState<PendingConfirm | null>(null)
   const [autoFocusKey, setAutoFocusKey] = useState<string | null>(null)
   const [duplicating, setDuplicating] = useState(false)
+  const [activating, setActivating] = useState(false)
+  // Id of a new survey once its first save succeeds, so a retry updates it instead of creating another.
+  const [createdId, setCreatedId] = useState<string | null>(null)
+  const effectiveId = surveyId ?? createdId
 
   const questionsLocked = responseCount > 0
-  const saving = saveState.kind === 'saving'
+  const saving = saveState.kind === 'saving' || activating
   const isDirty = loadState.kind === 'ready' && snapshot(survey) !== savedSnapshot
   const errors = attemptedSave ? validateSurvey(survey, { questionsLocked }) : EMPTY_ERRORS
 
@@ -198,6 +205,10 @@ function SurveyEditor({ surveyId }: { surveyId: string | null }) {
 
   function confirmPending() {
     if (!pending) return
+    if (pending.kind === 'activate') {
+      void activateAndPresent(pending.surveyId)
+      return
+    }
     if (pending.kind === 'deleteQuestion') deleteQuestion(pending.questionKey)
     if (pending.kind === 'toTrueFalse') {
       updateQuestion(pending.questionKey, (question) => ({
@@ -210,38 +221,79 @@ function SurveyEditor({ surveyId }: { surveyId: string | null }) {
   }
 
   // ---- Saving ----
-  async function handleSave() {
+
+  /** Validates and saves. Returns the survey id, or null if it couldn't be saved. */
+  async function performSave(): Promise<string | null> {
     setAttemptedSave(true)
     const validation = validateSurvey(survey, { questionsLocked })
     if (hasErrors(validation)) {
       setSaveState({ kind: 'invalid' })
       const fieldId = firstErrorFieldId(survey, validation)
       if (fieldId) document.getElementById(fieldId)?.focus()
-      return
+      return null
     }
+
+    if (effectiveId && !isDirty) return effectiveId
 
     setSaveState({ kind: 'saving' })
     try {
-      if (questionsLocked && surveyId) {
-        await updateSurveyDetails(surveyId, survey.title, survey.description)
+      let savedId = effectiveId
+      if (questionsLocked && effectiveId) {
+        await updateSurveyDetails(effectiveId, survey.title, survey.description)
       } else {
-        const savedId = await saveSurvey({
-          surveyId,
+        savedId = await saveSurvey({
+          surveyId: effectiveId,
           title: survey.title.trim(),
           description: survey.description,
           questions: toSaveQuestions(survey),
         })
-        if (!surveyId) {
-          setSavedSnapshot(snapshot(survey))
-          navigate(`/surveys/${savedId}/edit`, { replace: true, state: { saved: true } })
-          return
-        }
+        if (!effectiveId) setCreatedId(savedId)
       }
       setSavedSnapshot(snapshot(survey))
       setSaveState({ kind: 'saved' })
+      return savedId
     } catch (err) {
       setSaveState({ kind: 'error', message: toUserMessage(err) })
+      return null
     }
+  }
+
+  async function handleSave() {
+    const savedId = await performSave()
+    if (savedId && !surveyId) {
+      navigate(`/surveys/${savedId}/edit`, { replace: true, state: { saved: true } })
+    }
+  }
+
+  // ---- Activation (save first, then activate, then present) ----
+
+  async function activateAndPresent(id: string) {
+    setActivating(true)
+    try {
+      await activateSurvey(id)
+      navigate(`/surveys/${id}/present`)
+    } catch (err) {
+      setPending(null)
+      setSaveState({ kind: 'error', message: toUserMessage(err) })
+      setActivating(false)
+    }
+  }
+
+  async function handleActivate() {
+    const savedId = await performSave()
+    if (!savedId) return
+    try {
+      const active = await getActiveSurvey()
+      if (active && active.id !== savedId) {
+        // Activating closes the current Active survey (D3), so confirm first.
+        setPending({ kind: 'activate', surveyId: savedId, activeTitle: active.title })
+        return
+      }
+    } catch (err) {
+      setSaveState({ kind: 'error', message: toUserMessage(err) })
+      return
+    }
+    await activateAndPresent(savedId)
   }
 
   async function handleDuplicate() {
@@ -293,8 +345,9 @@ function SurveyEditor({ surveyId }: { surveyId: string | null }) {
     )
   }
 
-  const statusMessage =
-    saveState.kind === 'saving'
+  const statusMessage = activating
+    ? 'Activating...'
+    : saveState.kind === 'saving'
       ? 'Saving...'
       : saveState.kind === 'invalid' && hasErrors(errors)
         ? 'Fix the highlighted fields before saving.'
@@ -474,15 +527,24 @@ function SurveyEditor({ surveyId }: { surveyId: string | null }) {
               onClick={handleSave}
               disabled={saving || duplicating}
             >
-              {saving ? 'Saving...' : questionsLocked ? 'Save Details' : 'Save Draft'}
+              {saveState.kind === 'saving'
+                ? 'Saving...'
+                : questionsLocked
+                  ? 'Save Details'
+                  : 'Save Draft'}
             </button>
             <button
               type="button"
               className={buttonStyles.primary}
-              disabled
-              title="Available after activation is built"
+              onClick={handleActivate}
+              disabled={saving || duplicating || survey.questions.length === 0}
+              title={
+                survey.questions.length === 0
+                  ? 'Add at least one question before activating.'
+                  : undefined
+              }
             >
-              Activate
+              {activating ? 'Activating...' : 'Activate'}
             </button>
           </div>
         </div>
@@ -494,19 +556,26 @@ function SurveyEditor({ surveyId }: { surveyId: string | null }) {
           title={
             pending.kind === 'deleteQuestion'
               ? `Delete question ${pending.number}?`
-              : `Change question ${pending.number} to True / False?`
+              : pending.kind === 'toTrueFalse'
+                ? `Change question ${pending.number} to True / False?`
+                : `Activate "${survey.title.trim()}"?`
           }
           actions={[
             pending.kind === 'deleteQuestion'
               ? { label: 'Delete Question', variant: 'danger', onClick: confirmPending }
-              : { label: 'Change Type', variant: 'primary', onClick: confirmPending },
+              : pending.kind === 'toTrueFalse'
+                ? { label: 'Change Type', variant: 'primary', onClick: confirmPending }
+                : { label: 'Activate', variant: 'primary', onClick: confirmPending },
           ]}
           onCancel={() => setPending(null)}
+          busy={activating}
         >
           <p>
             {pending.kind === 'deleteQuestion'
               ? 'The question and its choices will be removed from this survey.'
-              : 'The current choices will be replaced with True and False.'}
+              : pending.kind === 'toTrueFalse'
+                ? 'The current choices will be replaced with True and False.'
+                : `"${pending.activeTitle}" is active now. Activating this survey closes it, and students can no longer submit responses to it.`}
           </p>
         </ConfirmDialog>
       )}

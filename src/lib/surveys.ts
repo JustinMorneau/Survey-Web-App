@@ -168,3 +168,59 @@ export async function deleteSurvey(surveyId: string): Promise<void> {
   if (error) throw error
   if (data.length === 0) throw new Error('INVALID_STATUS_TRANSITION')
 }
+
+// ------------------------------------------------------------------
+// Activation and presenting (Phase 4)
+// ------------------------------------------------------------------
+
+export type PresentSurvey = {
+  id: string
+  title: string
+  status: SurveyStatus
+  publicSlug: string | null
+  responseCount: number
+}
+
+/** Survey details for the Present page; also polled for the live response count (D11). */
+export async function getPresentSurvey(surveyId: string): Promise<PresentSurvey> {
+  const { data, error } = await supabase
+    .from('surveys')
+    .select('id, title, status, public_slug, responses(count)')
+    .eq('id', surveyId)
+    .maybeSingle()
+
+  if (error?.code === '22P02') throw new Error('SURVEY_NOT_FOUND')
+  if (error) throw error
+  if (!data) throw new Error('SURVEY_NOT_FOUND')
+
+  return {
+    id: data.id,
+    title: data.title,
+    status: data.status as SurveyStatus,
+    publicSlug: data.public_slug,
+    responseCount: data.responses[0]?.count ?? 0,
+  }
+}
+
+/** The currently Active survey, if any (used to warn before activating another). */
+export async function getActiveSurvey(): Promise<{ id: string; title: string } | null> {
+  const { data, error } = await supabase
+    .from('surveys')
+    .select('id, title')
+    .eq('status', 'active')
+    .maybeSingle()
+
+  if (error) throw error
+  return data
+}
+
+/** Closes any other Active survey, assigns a slug on first activation, and activates (D2, D3). */
+export async function activateSurvey(surveyId: string): Promise<void> {
+  const { error } = await supabase.rpc('activate_survey', { p_survey_id: surveyId })
+  if (error) throw error
+}
+
+export async function closeSurvey(surveyId: string): Promise<void> {
+  const { error } = await supabase.rpc('close_survey', { p_survey_id: surveyId })
+  if (error) throw error
+}
