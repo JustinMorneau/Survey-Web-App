@@ -8,16 +8,16 @@
 
 ## Related Documents
 
-| Document | Covers |
-|---|---|
+| Document      | Covers                                                                  |
+| ------------- | ----------------------------------------------------------------------- |
 | `DATABASE.md` | Tables, constraints, Row Level Security, database functions, migrations |
-| `API.md` | Data access, RPC inputs and outputs, error codes, CSV format |
-| `UI.md` | Routes, screens, states, messages, accessibility |
-| `TODO.md` | Implementation phases and verification gates |
+| `API.md`      | Data access, RPC inputs and outputs, error codes, CSV format            |
+| `UI.md`       | Routes, screens, states, messages, accessibility                        |
+| `TODO.md`     | Implementation phases and verification gates                            |
 
 If this document and a detailed document disagree, the detailed document wins (D1).
 
-------------------------------------------------------------------------
+---
 
 # 1. Overview
 
@@ -38,21 +38,21 @@ dashboard.
 The application should be inexpensive to operate and use only free
 hosting and database services.
 
-------------------------------------------------------------------------
+---
 
 # 2. Goals
 
--   Extremely easy for students to use
--   Extremely easy for instructors to prepare surveys
--   Mobile friendly
--   Fast enough for an entire classroom
--   No student login required
--   Permanent storage of survey responses
--   Easy visualization of results
--   Free hosting
--   Open source
+- Extremely easy for students to use
+- Extremely easy for instructors to prepare surveys
+- Mobile friendly
+- Fast enough for an entire classroom
+- No student login required
+- Permanent storage of survey responses
+- Easy visualization of results
+- Free hosting
+- Open source
 
-------------------------------------------------------------------------
+---
 
 # 3. Target Users
 
@@ -63,67 +63,67 @@ manually in the Supabase dashboard; public sign-up is disabled (D7).
 
 The instructor can:
 
--   Log in securely
--   Create, edit, duplicate, delete, archive, and unarchive surveys
--   Activate, close, and reopen surveys
--   Display QR codes
--   View live and historical responses
--   Export results
+- Log in securely
+- Create, edit, duplicate, delete, archive, and unarchive surveys
+- Activate, close, and reopen surveys
+- Display QR codes
+- View live and historical responses
+- Export results
 
 ## Student
 
 Students can:
 
--   Scan a QR code
--   Complete a survey
--   Submit responses
--   Receive confirmation
+- Scan a QR code
+- Complete a survey
+- Submit responses
+- Receive confirmation
 
 No student account is required. Responses are anonymous.
 
-------------------------------------------------------------------------
+---
 
 # 4. Functional Requirements
 
 ## Survey Management
 
--   Create, edit, duplicate, archive, unarchive, and delete surveys.
--   Each survey contains a title, optional description, and one or more
-    questions.
--   A survey with zero responses can be fully edited while Draft or
-    Closed. Once it has a response, its questions and choices are
-    locked; only title and description can change (D4).
--   An Active survey must be closed before it can be edited, archived,
-    or deleted (D3).
+- Create, edit, duplicate, archive, unarchive, and delete surveys.
+- Each survey contains a title, optional description, and one or more
+  questions.
+- A survey with zero responses can be fully edited while Draft or
+  Closed. Once it has a response, its questions and choices are
+  locked; only title and description can change (D4).
+- An Active survey must be closed before it can be edited, archived,
+  or deleted (D3).
 
 ## Supported Question Types
 
 Version 1 supports:
 
--   Multiple Choice: 2–10 non-empty, distinct choices
--   True / False: two fixed choices, "True" and "False"
+- Multiple Choice: 2–10 non-empty, distinct choices
+- True / False: two fixed choices, "True" and "False"
 
 Every question is required (D5).
 
 Future versions may add:
 
--   Checkbox
--   Short Answer
--   Rating Scale
--   Numeric Response
+- Checkbox
+- Short Answer
+- Rating Scale
+- Numeric Response
 
 ## Survey Lifecycle
 
 Each survey is one of:
 
--   Draft
--   Active
--   Closed
--   Archived
+- Draft
+- Active
+- Closed
+- Archived
 
 Allowed transitions (D3):
 
-``` text
+```text
 Draft    → Active      (activate)
 Active   → Closed      (close)
 Closed   → Active      (reopen)
@@ -140,10 +140,10 @@ activated.
 
 When a survey is first activated, the application generates:
 
--   A public slug (8 characters, kept on reactivation) (D2)
--   Public survey URL `<VITE_PUBLIC_SITE_URL>/s/<slug>` (D12)
--   QR Code
--   Downloadable PNG
+- A public slug (8 characters, kept on reactivation) (D2)
+- Public survey URL `<VITE_PUBLIC_SITE_URL>/s/<slug>` (D12)
+- QR Code
+- Downloadable PNG
 
 ## Student Survey
 
@@ -154,10 +154,10 @@ tablets, or laptops. Each browser may submit once per survey (D8).
 
 Displays:
 
--   Response counts
--   Percentages (denominator: responses that answered the question) (D10)
--   Charts
--   Historical results
+- Response counts
+- Percentages (denominator: responses that answered the question) (D10)
+- Charts
+- Historical results
 
 The present page shows a response count refreshed every 5 seconds (D11).
 
@@ -166,18 +166,18 @@ The present page shows a response count refreshed every 5 seconds (D11).
 Export all survey results as CSV: one row per response, one column per
 question (D13).
 
-------------------------------------------------------------------------
+---
 
 # 5. Nonfunctional Requirements
 
--   Responsive mobile interface
--   Support at least 200 simultaneous students, verified by a
-    200-concurrent-submission script (D18)
--   Average page load under 2 seconds, verified with Lighthouse
--   Secure instructor authentication
--   Free cloud hosting (note: Supabase pauses inactive free projects; D17)
+- Responsive mobile interface
+- Support at least 200 simultaneous students, verified by a
+  200-concurrent-submission script (D18)
+- Average page load under 2 seconds, verified with Lighthouse
+- Secure instructor authentication
+- Free cloud hosting (note: Supabase pauses inactive free projects; D17)
 
-------------------------------------------------------------------------
+---
 
 # 6. Database Schema
 
@@ -185,93 +185,93 @@ Summary only. `DATABASE.md` is authoritative (D1).
 
 ## surveys
 
--   id
--   title
--   description
--   status
--   public_slug
--   created_at
--   updated_at
+- id
+- title
+- description
+- status
+- public_slug
+- created_at
+- updated_at
 
 ## questions
 
--   id
--   survey_id
--   question_text
--   question_type
--   position
--   created_at
+- id
+- survey_id
+- question_text
+- question_type
+- position
+- created_at
 
 ## choices
 
--   id
--   question_id
--   choice_text
--   position
--   created_at
+- id
+- question_id
+- choice_text
+- position
+- created_at
 
 ## responses
 
--   id
--   survey_id
--   anonymous_token
--   submitted_at
+- id
+- survey_id
+- anonymous_token
+- submitted_at
 
 ## answers
 
--   id
--   response_id
--   question_id
--   choice_id
--   text_answer (reserved for future question types)
--   created_at
+- id
+- response_id
+- question_id
+- choice_id
+- text_answer (reserved for future question types)
+- created_at
 
-------------------------------------------------------------------------
+---
 
 # 7. Technology Stack
 
 Frontend
 
--   React
--   TypeScript
--   Vite
--   Tailwind CSS
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
 
 Backend
 
--   Supabase (Auth, PostgREST, database functions)
+- Supabase (Auth, PostgREST, database functions)
 
 Database
 
--   PostgreSQL
+- PostgreSQL
 
 Charts
 
--   Recharts
+- Recharts
 
 QR Code
 
--   qrcode npm package
+- qrcode npm package
 
 Hosting
 
--   Cloudflare Pages
+- Cloudflare Pages
 
 Version Control
 
--   GitHub
+- GitHub
 
 Testing (D15)
 
--   Manual checklists in each TODO phase gate
--   SQL scripts for RLS and RPC checks
--   Vitest (optional) for pure logic
+- Manual checklists in each TODO phase gate
+- SQL scripts for RLS and RPC checks
+- Vitest (optional) for pure logic
 
-------------------------------------------------------------------------
+---
 
 # 8. Project Structure
 
-``` text
+```text
 classroom-survey/
 ├── src/
 │   ├── components/
@@ -295,41 +295,41 @@ classroom-survey/
 
 ## Environment Variables
 
-``` text
+```text
 VITE_SUPABASE_URL
 VITE_SUPABASE_ANON_KEY
 VITE_PUBLIC_SITE_URL
 ```
 
-------------------------------------------------------------------------
+---
 
 # 9. MVP
 
--   Instructor authentication
--   Survey creation/editing
--   Multiple-choice questions
--   True/False questions
--   QR code generation
--   Student submission page
--   PostgreSQL storage
--   Results dashboard
--   Historical browsing
--   CSV export
+- Instructor authentication
+- Survey creation/editing
+- Multiple-choice questions
+- True/False questions
+- QR code generation
+- Student submission page
+- PostgreSQL storage
+- Results dashboard
+- Historical browsing
+- CSV export
 
-------------------------------------------------------------------------
+---
 
 # 10. Future Enhancements
 
--   Live updating charts (Supabase Realtime)
--   AI-generated questions
--   LMS integration
--   Question bank
--   Student authentication
--   Attendance tracking
--   Analytics
--   Multiple instructors
+- Live updating charts (Supabase Realtime)
+- AI-generated questions
+- LMS integration
+- Question bank
+- Student authentication
+- Attendance tracking
+- Analytics
+- Multiple instructors
 
-------------------------------------------------------------------------
+---
 
 # 11. Design Decisions
 

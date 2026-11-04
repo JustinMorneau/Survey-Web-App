@@ -1,564 +1,321 @@
-# Classroom Survey Web App — UI Specification
+# Classroom Survey Web App — TODO
 
-## Design Goals
+## Purpose
 
-The interface should be:
+This roadmap breaks the MVP into seven phases, each small enough to build, verify, and commit on its own.
 
-- simple;
-- fast;
-- mobile friendly;
-- easy to use during class;
-- readable from a projector;
-- usable without training.
+**Workflow for every phase**
 
-The student experience should require as few taps as possible.
+1. Implement the build items.
+2. Complete every item in the phase's **Verify & Commit** gate.
+3. Commit and push to GitHub only after the gate passes.
 
-Decision numbers (D1–D18) refer to the main specification, §11.
+Decision numbers (D1–D18) refer to the main specification, §11. Details live in `DATABASE.md`, `API.md`, and `UI.md`.
 
 ---
 
-# 1. Application Routes
+# Phase 1 — Foundation: Project, Supabase, and Deployment Pipeline
 
-```text
-/                     Landing page
-/login                Instructor login
-/dashboard            Instructor dashboard              (protected)
-/surveys/new          New survey                        (protected)
-/surveys/:id/edit     Edit survey                       (protected)
-/surveys/:id/present  Present active survey             (protected)
-/surveys/:id/results  View results                      (protected)
-/s/:slug              Public student survey (D2)
-```
+Decisions: D1, D3, D7, D8, D12, D14
 
-Protected routes redirect to `/login` when there is no session. Cloudflare Pages serves `index.html` for every route through `public/_redirects`.
+## Project setup
 
----
+- [x] Create a new React + TypeScript project with Vite.
+- [x] Pin TypeScript to `~6.0.0` (`typescript-eslint` does not support TypeScript 7 yet).
+- [x] Add Tailwind CSS.
+- [x] Add React Router.
+- [x] Add the Supabase JavaScript client.
+- [x] Add Recharts.
+- [x] Add the `qrcode` package.
+- [x] Create the folder structure from the specification §8.
+- [x] Add `.env.example` with `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_PUBLIC_SITE_URL`.
+- [x] Create `.env.local` with the real values (ignored by git).
+- [x] Configure ESLint and formatting.
+- [x] Create a basic home page.
+- [x] Add `wrangler.jsonc` with `./dist` assets and single-page-application routing.
 
-# 2. Landing Page
+## Supabase and database
 
-Purpose:
+- [x] Create a Supabase project.
+- [x] Disable public sign-ups and create the instructor account manually (D7).
+- [x] Write `0001_schema.sql`: all five tables, constraints, indexes, table privileges, the required token unique index (D8), and the `only_one_active_survey` index.
+- [x] Add the `updated_at` trigger and the status-transition trigger (D3).
+- [x] Write `0002_rls.sql`: enable RLS, anon read policies, authenticated policies (`DATABASE.md` §9).
+- [x] Apply both migrations in the SQL Editor (D14).
+- [x] Generate TypeScript types from the schema (`supabase gen types`) after the migrations are applied.
+- [x] Create the shared Supabase client in `src/lib/`.
 
-Provide a simple entry point for instructors.
+## Deployment pipeline
 
-```text
-+--------------------------------------+
-|        Classroom Survey              |
-|                                      |
-|  Quick in-class understanding checks |
-|                                      |
-|        [ Instructor Login ]          |
-+--------------------------------------+
-```
+- [x] Push the project to GitHub.
+- [x] Create the Cloudflare Worker (`survey-web-app`) and connect it to the repository.
+- [x] Configure the Workers Builds API token.
+- [x] Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as **build** variables.
+- [x] Deploy the application.
+- [x] Add `VITE_PUBLIC_SITE_URL` (the `workers.dev` URL) as a build variable and rebuild.
 
-No student link is necessary because students use QR codes. There is no sign-up link (D7).
+## Verify & Commit
 
----
-
-# 3. Instructor Login
-
-```text
-+--------------------------------------+
-| Instructor Login                     |
-|                                      |
-| Email                                |
-| [____________________________]       |
-|                                      |
-| Password                             |
-| [____________________________]       |
-|                                      |
-| [ Log In ]                           |
-+--------------------------------------+
-```
-
-A wrong email or password shows "Incorrect email or password." below the form. The Log In button is disabled while signing in.
-
----
-
-# 4. Dashboard
-
-Purpose:
-
-Display surveys and their current states.
-
-Header:
-
-```text
-Classroom Survey
-Dashboard                 instructor@school.edu
-[ New Survey ]            [ Logout ]
-```
-
-Controls:
-
-```text
-Search: [________________]
-Status: [ All except Archived ▼ ]
-Created: [ from ] – [ to ]
-```
-
-Status filter options: All except Archived (default), Draft, Active, Closed, Archived, All (D3). Dates are shown and filtered in local time by creation date (D16).
-
-Survey card:
-
-```text
-+--------------------------------------------------+
-| Recursion Concept Check                         |
-| [Draft]  Created: Aug 17, 2026  ·  0 responses  |
-|                                                  |
-| [Edit] [Activate] [Duplicate] [Archive] [Delete]|
-+--------------------------------------------------+
-```
-
-## Actions by status (D3, D4)
-
-| Status | Actions |
-|---|---|
-| Draft | Edit, Activate, Duplicate, Archive, Delete |
-| Active | Present, Results, Close, Duplicate |
-| Closed | Results, Edit*, Reopen, Duplicate, Archive, Delete |
-| Archived | Results, Duplicate, Unarchive, Delete |
-
-\* Closed surveys with responses open the editor in locked mode (§5).
-
-Activate and Reopen go to the Present page after success.
-
-Status badges always show the status as text, not only as color.
+- [x] `npm run build` and lint pass with no errors.
+- [x] The `workers.dev` URL loads the home page.
+- [x] Refreshing a deep link (for example `/login`) does not return 404.
+- [x] Save RLS checks as a script in `supabase/tests/`. Using a test Active survey and the anon key:
+  - [x] anon can read the active survey and its questions and choices;
+  - [x] anon cannot read Draft, Closed, or Archived surveys;
+  - [x] anon cannot read responses or answers;
+  - [x] anon cannot insert into any table.
+- [x] Authenticated users can read and write all tables.
+- [x] An invalid status change (for example Draft → Closed) fails with `INVALID_STATUS_TRANSITION`.
+- [x] Attempting to sign up a new user is rejected.
+- [x] The anon key cannot read `responses` through the REST API.
+- [x] Commit and push.
 
 ---
 
-# 5. Survey Editor
+# Phase 2 — Instructor Authentication and Dashboard
 
-Purpose:
+Decisions: D3, D9, D16
 
-Allow surveys to be prepared quickly before class.
+## Authentication
 
-Top section:
+- [ ] Create the instructor login page.
+- [ ] Connect login to Supabase Auth.
+- [ ] Add logout.
+- [ ] Create an authentication context/provider.
+- [ ] Create a protected-route component.
+- [ ] Redirect unauthenticated users and expired sessions to `/login`.
+- [ ] Show the logged-in instructor in the dashboard header.
 
-```text
-Survey Title
-[________________________________________]
+## Dashboard
 
-Description (optional)
-[________________________________________]
-```
+- [ ] Create the dashboard layout.
+- [ ] Load surveys with their response counts.
+- [ ] Display title, status badge (text, not only color), creation date, and response count.
+- [ ] Add a New Survey button.
+- [ ] Add search by title.
+- [ ] Add the status filter, defaulting to "All except Archived" (D3).
+- [ ] Add the creation-date filter (D16).
+- [ ] Show only the actions allowed for each status (`UI.md` §4).
+- [ ] Add Archive and Unarchive actions with confirmation.
+- [ ] Add Delete with the standard and stronger confirmation dialogs (`UI.md` §11).
+- [ ] Add empty states for "no surveys" and "no search results".
+- [ ] Create the shared error-code-to-message mapper (`UI.md` §17, D9).
 
-Question card:
+## Verify & Commit
 
-```text
-+------------------------------------------------+
-| Question 1                       [↑] [↓]       |
-|                                                |
-| [ What is required for recursion?           ] |
-|                                                |
-| Type: [ Multiple Choice ▼ ]                    |
-|                                                |
-| Choices                                        |
-| [ A base case                     ] [↑][↓][✕]  |
-| [ A pointer                       ] [↑][↓][✕]  |
-| [ A loop                          ] [↑][↓][✕]  |
-|                                                |
-| [+ Add Choice]                                 |
-|                                                |
-| [Delete Question]                              |
-+------------------------------------------------+
-```
-
-Bottom controls:
-
-```text
-[ + Add Question ]
-
-Saving... / Saved        [ Save Draft ]    [ Activate ]
-```
-
-## Question rules (D5)
-
-- Every question is required for students; there is no "required" toggle.
-- Multiple Choice: 2–10 choices. Add Choice is hidden at 10; delete is disabled at 2. Choices must be non-empty and distinct.
-- True / False: shows fixed "True" and "False" choices that cannot be edited, reordered, or deleted.
-- Changing a question from Multiple Choice to True / False asks for confirmation, because the existing choices are replaced.
-
-## Editing behavior
-
-- reordering keeps all entered text;
-- validation errors appear next to the affected field;
-- deleting a question asks for confirmation;
-- leaving the page with unsaved changes asks for confirmation;
-- Activate saves first, then activates, then opens the Present page;
-- Activate is disabled until the survey has at least one question.
-
-## Locked mode (D4)
-
-When the survey has responses:
-
-```text
-+------------------------------------------------+
-| This survey has 52 responses, so its questions |
-| can't be changed. You can still edit the title |
-| and description.            [ Duplicate to edit ] |
-+------------------------------------------------+
-```
-
-Questions and choices are shown read-only.
-
-Active surveys cannot be opened in the editor; the dashboard does not offer Edit for them.
+- [ ] Log in, log out, and confirm a page refresh keeps the session.
+- [ ] A wrong password shows a friendly error.
+- [ ] Visiting `/dashboard` while logged out redirects to `/login`.
+- [ ] Search, status filter, and date filter work together.
+- [ ] Archive and Unarchive work, each with a confirmation.
+- [ ] Deleting a survey removes its questions, choices, and responses.
+- [ ] An Active survey offers no Delete or Archive action.
+- [ ] Commit and push.
 
 ---
 
-# 6. Present Survey Page
+# Phase 3 — Survey Editor and Duplication
 
-Purpose:
+Decisions: D4, D5, D6, D7, D9
 
-Display the QR code during class. Optimized for a projector.
+## Database
 
-```text
-+--------------------------------------------------------+
-| Recursion Concept Check                                |
-|                                                        |
-|                 +----------------+                     |
-|                 |                |                     |
-|                 |    QR CODE     |                     |
-|                 |                |                     |
-|                 +----------------+                     |
-|                                                        |
-|            classroom-survey.pages.dev/s/x7kf2qmb       |
-|                                                        |
-|                  Responses: 42                         |
-|                                                        |
-| [ Download QR ]  [ View Results ]   [ Close Survey ]   |
-+--------------------------------------------------------+
-```
+- [ ] Write `0003_save_and_duplicate.sql` with `save_survey` and `duplicate_survey` (`DATABASE.md` §10).
+- [ ] Revoke execute on both from `public` and `anon` (D7).
 
-Requirements:
+## Editor
 
-- QR code is large and high-contrast;
-- URL is readable from the back of a room and built from `VITE_PUBLIC_SITE_URL` (D12);
-- response count refreshes every 5 seconds while the page is visible (D11);
-- no unnecessary navigation elements;
-- suitable for full-screen projection;
-- Close Survey asks for confirmation.
+- [ ] Create the editor page for `/surveys/new` and `/surveys/:id/edit`.
+- [ ] Add title and optional description fields.
+- [ ] Add, delete, and reorder questions.
+- [ ] Support Multiple Choice questions with 2–10 choices.
+- [ ] Support True / False questions with fixed choices (D5).
+- [ ] Add, delete, and reorder choices.
+- [ ] Confirm before changing a question to True / False.
+- [ ] Validate fields and show errors next to the affected field.
+- [ ] Save through `save_survey` with "Saving..." / "Saved" feedback.
+- [ ] Load an existing survey for editing.
+- [ ] Show locked mode for surveys with responses, saving title and description directly (D4).
+- [ ] Block opening the editor for Active surveys.
+- [ ] Warn about unsaved changes when leaving the editor.
 
-If the survey is not Active, the page shows "This survey is not active." with a link to the dashboard.
+## Duplication
 
----
+- [ ] Add the Duplicate action to the dashboard and to locked mode.
+- [ ] Call `duplicate_survey` and open the editor for the copy.
 
-# 7. Student Survey
+## Verify & Commit
 
-This is the most important mobile interface.
-
-Requirements:
-
-- no login;
-- no menu;
-- no distractions;
-- touch targets of at least 44px;
-- readable text;
-- one-column mobile layout.
-
-```text
-Recursion Concept Check
-
-Quick understanding check
-
-1. What is required for recursion?
-
-( ) A base case
-( ) A pointer
-( ) A loop
-
-2. Every recursive function needs
-   a stopping condition.
-
-( ) True
-( ) False
-
-[            Submit            ]
-```
-
-Spacing:
-
-- generous spacing between answer choices;
-- the whole choice row is tappable, not just the radio button;
-- Submit spans most of the screen width.
-
-If the student taps Submit with unanswered questions, each unanswered question shows "Please choose an answer." and the page scrolls to the first one.
+- [ ] Create a survey with both question types and save it. After reload, all content and order are intact.
+- [ ] Reorder, edit, and delete questions and choices. After reload, the changes persist.
+- [ ] Validation errors appear next to the affected field, and `save_survey` rejects invalid data sent directly.
+- [ ] A survey with responses opens in locked mode, and `save_survey` returns `SURVEY_LOCKED` for it.
+- [ ] Duplicating copies questions and choices but no responses, creates a Draft named "Copy of ...", and opens the editor.
+- [ ] Calling `save_survey` or `duplicate_survey` with the anon key fails.
+- [ ] Commit and push.
 
 ---
 
-# 8. Student Submission States
+# Phase 4 — Activation and Presenting
 
-## Submitting
+Decisions: D2, D3, D5, D7, D11, D12
 
-```text
-Submitting...
-```
+## Database
 
-The Submit button is disabled.
+- [ ] Write `0004_activation.sql` with `activate_survey` and `close_survey` (`DATABASE.md` §10).
+- [ ] Generate slugs per D2, retrying on collision and keeping them on reactivation.
+- [ ] Revoke execute on both from `public` and `anon` (D7).
 
-## Success
+## Interface
 
-```text
-Thank you!
+- [ ] Add Activate, Reopen, and Close actions to the dashboard.
+- [ ] Make the editor's Activate button save first, then activate.
+- [ ] Create the Present Survey page.
+- [ ] Build the public URL from `VITE_PUBLIC_SITE_URL` (D12).
+- [ ] Generate and display a large QR code.
+- [ ] Display the readable fallback URL.
+- [ ] Show the response count, polling every 5 seconds while visible (D11).
+- [ ] Add a Download QR Code (PNG) button.
+- [ ] Add a Close Survey button with confirmation.
+- [ ] Optimize the page for full-screen projection.
 
-Your response has been recorded.
-```
+## Verify & Commit
 
-No additional actions.
-
-## Already Submitted
-
-Shown on page load if this browser already submitted, and after a `DUPLICATE_RESPONSE` error (D8).
-
-```text
-You have already submitted a response
-to this survey.
-```
-
-## Survey Not Available
-
-Shown when the slug does not match an Active survey, or when submitting fails with `SURVEY_NOT_ACTIVE` or `SURVEY_NOT_FOUND`. Students cannot tell a closed survey from a missing one, so one message covers both.
-
-```text
-This survey is no longer accepting responses.
-```
-
-If the survey closes while a student is filling it in, this message replaces the form when they submit.
+- [ ] Activating survey A and then survey B leaves A Closed and B Active, and only one survey is Active.
+- [ ] Reactivating a Closed survey keeps its original slug.
+- [ ] Activating a survey with no questions shows "Add at least one question before activating."
+- [ ] Calling `activate_survey` or `close_survey` with the anon key fails.
+- [ ] The QR code scanned with a real phone opens the production URL.
+- [ ] The downloaded PNG scans correctly.
+- [ ] The present page is readable full-screen on a projector-sized display.
+- [ ] Commit and push.
 
 ---
 
-# 9. Results Page
+# Phase 5 — Student Survey and Submission
 
-Header:
+Decisions: D2, D5, D7, D8, D9
 
-```text
-Recursion Concept Check
-[Closed]  52 responses
-```
+## Database
 
-Question result:
+- [ ] Write `0005_submission.sql` with `submit_survey_response` as `security definer` with `set search_path = ''` (`DATABASE.md` §10).
+- [ ] Grant execute to `anon` and `authenticated`; revoke from `public`.
 
-```text
-What is required for recursion?        52 answered
+## Student page
 
-A base case
-████████████████████  45   86.5%
+- [ ] Create the public route `/s/:slug`.
+- [ ] Load the active survey by slug.
+- [ ] Show "no longer accepting responses" when no Active survey matches.
+- [ ] Render title, description, and both question types.
+- [ ] Make whole choice rows tappable with 44px minimum targets.
+- [ ] Validate that every question is answered and scroll to the first missing one.
+- [ ] Add a near-full-width Submit button with "Submitting..." state.
+- [ ] Show the confirmation page after success.
 
-A pointer
-██                     3    5.8%
+## Duplicate protection
 
-A loop
-█                      2    3.8%
+- [ ] Create the browser token with `crypto.randomUUID()` and store it in localStorage as `cs_anon_token` (D8).
+- [ ] Set `cs_submitted_<surveyId>` after success or `DUPLICATE_RESPONSE`.
+- [ ] Show "already submitted" on page load when the flag exists.
+- [ ] Map every submission error code to its message (`UI.md` §17).
+- [ ] Handle a survey that closes while the student is filling it in.
 
-A compiler
-█                      2    3.8%
-```
+## Verify & Commit
 
-Percentages use the number of responses that answered the question (D10).
-
-Actions:
-
-```text
-[ Refresh ]
-[ Export CSV ]
-[ Present QR ]        (Active surveys only)
-[ Back to Dashboard ]
-```
-
-Charts:
-
-- horizontal bar charts;
-- every bar shows its count and percentage as text;
-- readable without relying on color;
-- choices in editor order.
+- [ ] Submit from a real phone against production.
+- [ ] Submit from two different browsers.
+- [ ] A second submission from the same browser shows "already submitted".
+- [ ] Removing only the `cs_submitted_<surveyId>` flag (keeping the token) and resubmitting still fails with `DUPLICATE_RESPONSE`, proving the database enforces it.
+- [ ] Submitting after the survey is closed shows the closed message.
+- [ ] Calling the RPC directly with a choice from another question returns `INVALID_CHOICE`.
+- [ ] Calling the RPC with a missing answer returns `MISSING_REQUIRED_ANSWER`.
+- [ ] The anon key still cannot read responses or answers.
+- [ ] Commit and push.
 
 ---
 
-# 10. Empty States
+# Phase 6 — Results, History, and CSV Export
 
-No surveys:
+Decisions: D7, D10, D13, D15, D16
 
-```text
-You have not created any surveys yet.
+## Database
 
-[ Create Your First Survey ]
-```
+- [ ] Write `0006_results.sql` with `get_survey_results` (`DATABASE.md` §10).
+- [ ] Revoke execute from `public` and `anon`.
 
-No responses:
+## Results
 
-```text
-No responses yet.
+- [ ] Create the results page for each survey.
+- [ ] Add the View Results action to the dashboard and the Present page.
+- [ ] Show the total response count and status.
+- [ ] Show each question's answered count.
+- [ ] Show count and percentage for each choice (D10).
+- [ ] Add horizontal bar charts with counts and percentages as text.
+- [ ] Add the "No responses yet" empty state.
+- [ ] Add Refresh, Back to Dashboard, and Present QR (Active only) buttons.
+- [ ] Confirm results work for Closed and Archived surveys.
 
-Display the QR code so students can join.
-```
+## CSV export
 
-No search results:
+- [ ] Add the Export CSV button.
+- [ ] Export one row per response with `response_id` and ISO `submitted_at`.
+- [ ] Add one column per question with choice text in each cell.
+- [ ] Name the file `<title-slug>_<YYYY-MM-DD>.csv`.
+- [ ] Escape quotes, commas, and line breaks.
+- [ ] Prefix cells starting with `= + - @` with `'`.
+- [ ] Write UTF-8 with a BOM.
+- [ ] (Optional) Add Vitest tests for the CSV builder and percentage calculation (D15).
 
-```text
-No surveys match your search.
-```
+## Verify & Commit
 
----
-
-# 11. Confirmation Dialogs
-
-Use confirmation for:
-
-```text
-Delete survey
-Archive survey
-Close active survey
-Delete question
-Change question type to True / False
-Leave editor with unsaved changes
-```
-
-Delete, no responses:
-
-```text
-Delete "Recursion Concept Check"?
-
-This will permanently delete the survey.
-
-[ Cancel ] [ Delete ]
-```
-
-Delete, with responses (stronger warning):
-
-```text
-Delete "Recursion Concept Check"?
-
-This survey has 52 responses. Deleting it
-permanently removes all of them.
-Archive keeps the results but hides the survey.
-
-[ Cancel ] [ Archive Instead ] [ Delete Permanently ]
-```
+- [ ] Counts match a manual SQL count, and percentages sum to about 100% per question.
+- [ ] Closed and Archived surveys show results.
+- [ ] The CSV opens correctly in Excel and Google Sheets, including text with commas, quotes, line breaks, and non-English characters.
+- [ ] Calling `get_survey_results` with the anon key fails.
+- [ ] Commit and push.
 
 ---
 
-# 12. Responsive Design
+# Phase 7 — Polish, Accessibility, and Release Check
 
-## Mobile
+Decisions: D15, D17, D18
 
-Student view:
+## Polish and accessibility
 
-- single column;
-- full-width answer controls;
-- minimal header.
+- [ ] Make page layouts consistent.
+- [ ] Review mobile, tablet, and desktop layouts (`UI.md` §12).
+- [ ] Confirm every async page has a loading state and every mutation button disables while running.
+- [ ] Confirm every page has its empty and error states.
+- [ ] Check color contrast.
+- [ ] Test keyboard navigation and visible focus on every page.
+- [ ] Confirm labels, `fieldset`/`legend` for radio groups, and field-linked error messages.
 
-Instructor dashboard:
+## Release check (production)
 
-- cards stack vertically;
-- action buttons may wrap.
-
-## Tablet
-
-- wider survey cards;
-- editor remains one column.
-
-## Desktop
-
-- dashboard may use cards or a compact table;
-- results can use larger charts.
-
----
-
-# 13. Accessibility
-
-Requirements:
-
-- semantic HTML;
-- visible focus indicators;
-- every control reachable and usable with the keyboard;
-- form labels connected to inputs;
-- radio groups use `fieldset` and `legend`;
-- sufficient color contrast;
-- survey status always shown as text;
-- charts also display numeric values;
-- error messages are associated with their fields.
+- [ ] Do a full classroom rehearsal: create, activate, submit from at least 3 devices, view results, export CSV, close, archive.
+- [ ] Verify production login, submissions, and results.
+- [ ] Write and run the 200-concurrent-submission script in `scripts/` (D18).
+- [ ] Confirm mobile page load is under 2 seconds with Lighthouse.
+- [ ] Re-run the RLS and permission scripts against production.
+- [ ] Re-run the sign-up `curl` with a real-domain address (for example a `+signuptest` alias) and confirm it returns `signup_disabled`.
+- [ ] Write `README.md` with setup, migration, and deployment steps.
+- [ ] Document the Supabase free-tier pause behavior in the README (D17).
+- [ ] Commit, push, and tag `v1.0`.
 
 ---
 
-# 14. Visual Style
+# Phase 8 — Post-MVP Enhancements
 
-Recommended characteristics:
-
-```text
-Clean
-Minimal
-Professional
-Neutral
-Large readable typography
-Generous whitespace
-```
-
-Avoid:
-
-```text
-Decorative animations
-Complex gradients
-Dense navigation
-Small mobile controls
-Excessive modal dialogs
-```
-
----
-
-# 15. Loading and Saving Feedback
-
-```text
-Loading survey...
-Loading results...
-Saving...
-Saved
-Submitting...
-```
-
-Buttons that start a request are disabled until it finishes. Do not show success toasts for every minor interaction.
-
----
-
-# 16. Dates
-
-All dates are shown in the browser's local time (D16), for example `Aug 17, 2026`.
-
----
-
-# 17. Error Messages (D9)
-
-| Code or situation | Message |
-|---|---|
-| Network error | Can't reach the server. Check your connection and try again. |
-| Session expired | Your session has expired. Please log in again. |
-| `SURVEY_NOT_FOUND` (instructor) | This survey no longer exists. |
-| `SURVEY_NOT_FOUND`, `SURVEY_NOT_ACTIVE` (student) | This survey is no longer accepting responses. |
-| `SURVEY_ACTIVE` | Close this survey before editing it. |
-| `SURVEY_LOCKED` | This survey has responses, so its questions can't be changed. |
-| `SURVEY_HAS_NO_QUESTIONS` | Add at least one question before activating. |
-| `INVALID_STATUS_TRANSITION` | That action isn't available for this survey's current status. |
-| `VALIDATION_FAILED` | Some questions need fixing before saving. |
-| `DUPLICATE_RESPONSE` | You have already submitted a response to this survey. |
-| `INVALID_QUESTION`, `INVALID_CHOICE` | Something went wrong with your answers. Please reload and try again. |
-| `MISSING_REQUIRED_ANSWER` | Please answer every question. |
-| Anything else | Something went wrong. Please try again. |
-
-Raw database errors are never shown.
-
----
-
-# 18. Future UI Enhancements
-
-Possible later screens:
-
-```text
-Question Bank
-Course Management
-Semester Management
-Analytics Dashboard
-AI Question Generator
-Survey Import
-Survey Settings
-Instructor Management
-```
-
-These are outside the MVP.
+- [ ] Add live updating results with Supabase Realtime.
+- [ ] Add question bank.
+- [ ] Add survey import/export as JSON.
+- [ ] Add Markdown import.
+- [ ] Add short-answer questions.
+- [ ] Add checkbox questions.
+- [ ] Add rating-scale questions.
+- [ ] Add numeric questions.
+- [ ] Add AI-assisted question generation.
+- [ ] Add LMS integration.
+- [ ] Add multiple instructors.
+- [ ] Add course and semester organization.
+- [ ] Add analytics across multiple surveys.

@@ -22,8 +22,8 @@ VITE_PUBLIC_SITE_URL     Base URL used in QR codes (D12)
 Public survey URL:
 
 ```ts
-const base = import.meta.env.VITE_PUBLIC_SITE_URL || window.location.origin;
-const url = `${base}/s/${survey.public_slug}`;
+const base = import.meta.env.VITE_PUBLIC_SITE_URL || window.location.origin
+const url = `${base}/s/${survey.public_slug}`
 ```
 
 ---
@@ -107,19 +107,19 @@ Students do not authenticate.
 
 Database functions raise exceptions whose message is one of these codes. The frontend reads `error.message`, maps the code to a UI message (`UI.md` §17), and shows a generic message for anything unknown. Raw database errors are never shown.
 
-| Code | Raised by | Meaning |
-|---|---|---|
-| `SURVEY_NOT_FOUND` | all survey RPCs | No survey with that ID |
-| `SURVEY_NOT_ACTIVE` | `submit_survey_response` | Survey is not accepting responses |
-| `SURVEY_ACTIVE` | `save_survey` | Active surveys cannot be edited |
-| `SURVEY_LOCKED` | `save_survey` | Survey has responses; questions are locked |
-| `SURVEY_HAS_NO_QUESTIONS` | `activate_survey` | Survey needs at least one question |
-| `INVALID_STATUS_TRANSITION` | status trigger, `close_survey` | Lifecycle rule violated (D3) |
-| `VALIDATION_FAILED` | `save_survey` | Question rules violated (D5) |
-| `DUPLICATE_RESPONSE` | `submit_survey_response` | This browser already submitted |
-| `INVALID_QUESTION` | `submit_survey_response` | Question not in this survey |
-| `INVALID_CHOICE` | `submit_survey_response` | Choice not in its question |
-| `MISSING_REQUIRED_ANSWER` | `submit_survey_response` | Not every question answered |
+| Code                        | Raised by                      | Meaning                                    |
+| --------------------------- | ------------------------------ | ------------------------------------------ |
+| `SURVEY_NOT_FOUND`          | all survey RPCs                | No survey with that ID                     |
+| `SURVEY_NOT_ACTIVE`         | `submit_survey_response`       | Survey is not accepting responses          |
+| `SURVEY_ACTIVE`             | `save_survey`                  | Active surveys cannot be edited            |
+| `SURVEY_LOCKED`             | `save_survey`                  | Survey has responses; questions are locked |
+| `SURVEY_HAS_NO_QUESTIONS`   | `activate_survey`              | Survey needs at least one question         |
+| `INVALID_STATUS_TRANSITION` | status trigger, `close_survey` | Lifecycle rule violated (D3)               |
+| `VALIDATION_FAILED`         | `save_survey`                  | Question rules violated (D5)               |
+| `DUPLICATE_RESPONSE`        | `submit_survey_response`       | This browser already submitted             |
+| `INVALID_QUESTION`          | `submit_survey_response`       | Question not in this survey                |
+| `INVALID_CHOICE`            | `submit_survey_response`       | Choice not in its question                 |
+| `MISSING_REQUIRED_ANSWER`   | `submit_survey_response`       | Not every question answered                |
 
 ---
 
@@ -128,10 +128,7 @@ Database functions raise exceptions whose message is one of these codes. The fro
 ## List Surveys
 
 ```ts
-supabase
-  .from("surveys")
-  .select("*, responses(count)")
-  .order("created_at", { ascending: false })
+supabase.from('surveys').select('*, responses(count)').order('created_at', { ascending: false })
 ```
 
 The dashboard hides Archived surveys unless the status filter includes them (D3). The response count drives the delete warning.
@@ -140,9 +137,9 @@ The dashboard hides Archived surveys unless the status filter includes them (D3)
 
 ```ts
 supabase
-  .from("surveys")
-  .select("*, questions(*, choices(*)), responses(count)")
-  .eq("id", surveyId)
+  .from('surveys')
+  .select('*, questions(*, choices(*)), responses(count)')
+  .eq('id', surveyId)
   .single()
 ```
 
@@ -177,28 +174,22 @@ A survey with a response count above 0 is locked (D4).
 ## Create or Save Survey (D4, D5)
 
 ```ts
-supabase.rpc("save_survey", {
-  p_survey_id: null,           // null creates a new Draft
-  p_title: "Recursion Concept Check",
-  p_description: "In-class poll",
+supabase.rpc('save_survey', {
+  p_survey_id: null, // null creates a new Draft
+  p_title: 'Recursion Concept Check',
+  p_description: 'In-class poll',
   p_questions: [
     {
-      question_text: "What is required for recursion?",
-      question_type: "multiple_choice",
-      choices: [
-        { choice_text: "A base case" },
-        { choice_text: "A pointer" }
-      ]
+      question_text: 'What is required for recursion?',
+      question_type: 'multiple_choice',
+      choices: [{ choice_text: 'A base case' }, { choice_text: 'A pointer' }],
     },
     {
-      question_text: "Every recursive function needs a stopping condition.",
-      question_type: "true_false",
-      choices: [
-        { choice_text: "True" },
-        { choice_text: "False" }
-      ]
-    }
-  ]
+      question_text: 'Every recursive function needs a stopping condition.',
+      question_type: 'true_false',
+      choices: [{ choice_text: 'True' }, { choice_text: 'False' }],
+    },
+  ],
 })
 ```
 
@@ -217,10 +208,7 @@ Errors: `SURVEY_NOT_FOUND`, `SURVEY_ACTIVE`, `SURVEY_LOCKED`, `VALIDATION_FAILED
 ## Update Title and Description of a Locked Survey
 
 ```ts
-supabase
-  .from("surveys")
-  .update({ title, description })
-  .eq("id", surveyId)
+supabase.from('surveys').update({ title, description }).eq('id', surveyId)
 ```
 
 Used only when the survey has responses and is not Active.
@@ -228,8 +216,8 @@ Used only when the survey has responses and is not Active.
 ## Archive and Unarchive (D3)
 
 ```ts
-supabase.from("surveys").update({ status: "archived" }).eq("id", surveyId)  // from draft or closed
-supabase.from("surveys").update({ status: "closed" }).eq("id", surveyId)    // unarchive
+supabase.from('surveys').update({ status: 'archived' }).eq('id', surveyId) // from draft or closed
+supabase.from('surveys').update({ status: 'closed' }).eq('id', surveyId) // unarchive
 ```
 
 The status trigger rejects other transitions with `INVALID_STATUS_TRANSITION`.
@@ -237,7 +225,7 @@ The status trigger rejects other transitions with `INVALID_STATUS_TRANSITION`.
 ## Delete Survey
 
 ```ts
-supabase.from("surveys").delete().eq("id", surveyId)
+supabase.from('surveys').delete().eq('id', surveyId)
 ```
 
 Allowed for any non-Active survey. Deletion cascades to questions, choices, responses, and answers. The UI asks for confirmation, with a stronger warning when the survey has responses.
@@ -245,7 +233,7 @@ Allowed for any non-Active survey. Deletion cascades to questions, choices, resp
 ## Duplicate Survey
 
 ```ts
-supabase.rpc("duplicate_survey", { p_survey_id: surveyId })
+supabase.rpc('duplicate_survey', { p_survey_id: surveyId })
 ```
 
 Returns the new survey ID. The copy is a Draft named `Copy of <title>`, with questions and choices but no responses and no slug. The UI then opens the editor for the copy.
@@ -255,7 +243,7 @@ Returns the new survey ID. The copy is a Draft named `Copy of <title>`, with que
 # 7. Activation
 
 ```ts
-supabase.rpc("activate_survey", { p_survey_id: surveyId })
+supabase.rpc('activate_survey', { p_survey_id: surveyId })
 ```
 
 Responsibilities:
@@ -284,7 +272,7 @@ When activating from the editor, save first, then activate.
 # 8. Close Survey
 
 ```ts
-supabase.rpc("close_survey", { p_survey_id: surveyId })
+supabase.rpc('close_survey', { p_survey_id: surveyId })
 ```
 
 Result: `status = closed`. Student submissions fail immediately after closing.
@@ -296,10 +284,7 @@ Errors: `SURVEY_NOT_FOUND`, `INVALID_STATUS_TRANSITION`.
 # 9. Present-Page Response Count (D11)
 
 ```ts
-supabase
-  .from("responses")
-  .select("*", { count: "exact", head: true })
-  .eq("survey_id", surveyId)
+supabase.from('responses').select('*', { count: 'exact', head: true }).eq('survey_id', surveyId)
 ```
 
 Poll every 5 seconds while `document.visibilityState === "visible"`. Stop polling when the page is hidden or unmounted.
@@ -318,9 +303,11 @@ The anon role can read only the Active survey and its questions and choices (RLS
 
 ```ts
 supabase
-  .from("surveys")
-  .select("id, title, description, questions(id, question_text, question_type, position, choices(id, choice_text, position))")
-  .eq("public_slug", slug)
+  .from('surveys')
+  .select(
+    'id, title, description, questions(id, question_text, question_type, position, choices(id, choice_text, position))',
+  )
+  .eq('public_slug', slug)
   .maybeSingle()
 ```
 
@@ -371,12 +358,10 @@ If `cs_submitted_<surveyId>` exists when the page loads, show "already submitted
 ## Call
 
 ```ts
-supabase.rpc("submit_survey_response", {
-  p_survey_id: "uuid",
-  p_anonymous_token: "random-browser-token",
-  p_answers: [
-    { question_id: "uuid", choice_id: "uuid" }
-  ]
+supabase.rpc('submit_survey_response', {
+  p_survey_id: 'uuid',
+  p_anonymous_token: 'random-browser-token',
+  p_answers: [{ question_id: 'uuid', choice_id: 'uuid' }],
 })
 ```
 
@@ -402,7 +387,7 @@ Accepted limitation: a private window or another browser can submit again.
 Instructor-only.
 
 ```ts
-supabase.rpc("get_survey_results", { p_survey_id: surveyId })
+supabase.rpc('get_survey_results', { p_survey_id: surveyId })
 ```
 
 Result:
@@ -443,10 +428,10 @@ Data fetched:
 
 ```ts
 supabase
-  .from("responses")
-  .select("id, submitted_at, answers(question_id, choice_id)")
-  .eq("survey_id", surveyId)
-  .order("submitted_at")
+  .from('responses')
+  .select('id, submitted_at, answers(question_id, choice_id)')
+  .eq('survey_id', surveyId)
+  .order('submitted_at')
 ```
 
 plus the survey's questions and choices.

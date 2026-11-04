@@ -392,14 +392,14 @@ grant execute on function submit_survey_response(uuid, text, jsonb) to anon, aut
 
 ## Function summary
 
-| Function | Security | Callable by | Purpose |
-|---|---|---|---|
-| `save_survey` | invoker | authenticated | Create or update a survey with its questions and choices |
-| `duplicate_survey` | invoker | authenticated | Copy a survey, questions, and choices as a Draft |
-| `activate_survey` | invoker | authenticated | Close the current Active survey, activate this one |
-| `close_survey` | invoker | authenticated | Close an Active survey |
-| `submit_survey_response` | definer | anon, authenticated | Validate and store one student submission |
-| `get_survey_results` | invoker | authenticated | Aggregate counts and percentages |
+| Function                 | Security | Callable by         | Purpose                                                  |
+| ------------------------ | -------- | ------------------- | -------------------------------------------------------- |
+| `save_survey`            | invoker  | authenticated       | Create or update a survey with its questions and choices |
+| `duplicate_survey`       | invoker  | authenticated       | Copy a survey, questions, and choices as a Draft         |
+| `activate_survey`        | invoker  | authenticated       | Close the current Active survey, activate this one       |
+| `close_survey`           | invoker  | authenticated       | Close an Active survey                                   |
+| `submit_survey_response` | definer  | anon, authenticated | Validate and store one student submission                |
+| `get_survey_results`     | invoker  | authenticated       | Aggregate counts and percentages                         |
 
 ## save_survey (D4, D5)
 
