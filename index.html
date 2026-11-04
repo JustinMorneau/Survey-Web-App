@@ -6,6 +6,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Quick in-class understanding checks" />
     <title>Classroom Survey</title>
+    <script>
+      // Startup error screen: if the app crashes before React renders anything,
+      // show the error instead of a blank page.
+      window.addEventListener('error', function (event) {
+        var root = document.getElementById('root')
+        if (!root || root.hasChildNodes()) return
+        var main = document.createElement('main')
+        main.style.cssText =
+          'max-width:40rem;margin:4rem auto;padding:0 1.5rem;font-family:system-ui,sans-serif;color:#1f2a37'
+        var heading = document.createElement('h1')
+        heading.textContent = 'The app could not start.'
+        heading.style.cssText = 'font-size:1.5rem;font-weight:700'
+        var detail = document.createElement('p')
+        detail.textContent = event.message || 'Unknown error'
+        detail.style.cssText =
+          'margin-top:1rem;padding:1rem;border:1px solid #fca5a5;border-radius:0.5rem;background:#fef2f2;color:#991b1b'
+        main.appendChild(heading)
+        main.appendChild(detail)
+        root.appendChild(main)
+      })
+    </script>
   </head>
   <body>
     <div id="root"></div>

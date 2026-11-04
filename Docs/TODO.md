@@ -120,39 +120,42 @@ Decisions: D4, D5, D6, D7, D9
 
 ## Database
 
-- [ ] Write `0003_save_and_duplicate.sql` with `save_survey` and `duplicate_survey` (`DATABASE.md` §10).
-- [ ] Revoke execute on both from `public` and `anon` (D7).
+- [x] Write `0003_save_and_duplicate.sql` with `save_survey` and `duplicate_survey` (`DATABASE.md` §10).
+- [x] Revoke execute on both from `public` and `anon` (D7).
+- [x] Apply the migration and regenerate `database.types.ts`.
+- [x] Run `supabase/tests/phase3_rpc_check.sql`.
 
 ## Editor
 
-- [ ] Create the editor page for `/surveys/new` and `/surveys/:id/edit`.
-- [ ] Add title and optional description fields.
-- [ ] Add, delete, and reorder questions.
-- [ ] Support Multiple Choice questions with 2–10 choices.
-- [ ] Support True / False questions with fixed choices (D5).
-- [ ] Add, delete, and reorder choices.
-- [ ] Confirm before changing a question to True / False.
-- [ ] Validate fields and show errors next to the affected field.
-- [ ] Save through `save_survey` with "Saving..." / "Saved" feedback.
-- [ ] Load an existing survey for editing.
-- [ ] Show locked mode for surveys with responses, saving title and description directly (D4).
-- [ ] Block opening the editor for Active surveys.
-- [ ] Warn about unsaved changes when leaving the editor.
+- [x] Switch to `createBrowserRouter` (required for `useBlocker`) and remove `App.tsx`.
+- [x] Create the editor page for `/surveys/new` and `/surveys/:id/edit`.
+- [x] Add title and optional description fields.
+- [x] Add, delete, and reorder questions.
+- [x] Support Multiple Choice questions with 2–10 choices.
+- [x] Support True / False questions with fixed choices (D5).
+- [x] Add, delete, and reorder choices.
+- [x] Confirm before changing a question to True / False.
+- [x] Validate fields and show errors next to the affected field.
+- [x] Save through `save_survey` with "Saving..." / "Saved" feedback.
+- [x] Load an existing survey for editing.
+- [x] Show locked mode for surveys with responses, saving title and description directly (D4).
+- [x] Block opening the editor for Active and Archived surveys.
+- [x] Warn about unsaved changes when leaving the editor.
 
 ## Duplication
 
-- [ ] Add the Duplicate action to the dashboard and to locked mode.
-- [ ] Call `duplicate_survey` and open the editor for the copy.
+- [x] Add the Duplicate action to the dashboard and to locked mode.
+- [x] Call `duplicate_survey` and open the editor for the copy.
 
 ## Verify & Commit
 
-- [ ] Create a survey with both question types and save it. After reload, all content and order are intact.
-- [ ] Reorder, edit, and delete questions and choices. After reload, the changes persist.
-- [ ] Validation errors appear next to the affected field, and `save_survey` rejects invalid data sent directly.
-- [ ] A survey with responses opens in locked mode, and `save_survey` returns `SURVEY_LOCKED` for it.
-- [ ] Duplicating copies questions and choices but no responses, creates a Draft named "Copy of ...", and opens the editor.
-- [ ] Calling `save_survey` or `duplicate_survey` with the anon key fails.
-- [ ] Commit and push.
+- [x] Create a survey with both question types and save it. After reload, all content and order are intact.
+- [x] Reorder, edit, and delete questions and choices. After reload, the changes persist.
+- [x] Validation errors appear next to the affected field, and `save_survey` rejects invalid data sent directly.
+- [x] A survey with responses opens in locked mode, and `save_survey` returns `SURVEY_LOCKED` for it.
+- [x] Duplicating copies questions and choices but no responses, creates a Draft named "Copy of ...", and opens the editor.
+- [x] Calling `save_survey` or `duplicate_survey` with the anon key fails.
+- [x] Commit and push.
 
 ---
 
