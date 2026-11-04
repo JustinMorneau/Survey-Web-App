@@ -205,41 +205,41 @@ Decisions: D2, D5, D7, D8, D9
 
 ## Database
 
-- [ ] Write `0005_submission.sql` with `submit_survey_response` as `security definer` with `set search_path = ''` (`DATABASE.md` §10).
-- [ ] Grant execute to `anon` and `authenticated`; revoke from `public`.
-- [ ] Apply the migration and regenerate `database.types.ts`.
-- [ ] Run `supabase/tests/phase5_rpc_check.sql`.
+- [x] Write `0005_submission.sql` with `submit_survey_response` as `security definer` with `set search_path = ''` (`DATABASE.md` §10).
+- [x] Grant execute to `anon` and `authenticated`; revoke from `public`.
+- [x] Apply the migration and regenerate `database.types.ts`.
+- [x] Run `supabase/tests/phase5_rpc_check.sql`.
 
 ## Student page
 
-- [ ] Replace the `/s/:slug` placeholder with the real student page.
-- [ ] Load the active survey by slug.
-- [ ] Show "no longer accepting responses" when no Active survey matches.
-- [ ] Render title, description, and both question types.
-- [ ] Make whole choice rows tappable with 44px minimum targets.
-- [ ] Validate that every question is answered and scroll to the first missing one.
-- [ ] Add a near-full-width Submit button with "Submitting..." state.
-- [ ] Show the confirmation page after success.
+- [x] Replace the `/s/:slug` placeholder with the real student page.
+- [x] Load the active survey by slug.
+- [x] Show "no longer accepting responses" when no Active survey matches.
+- [x] Render title, description, and both question types.
+- [x] Make whole choice rows tappable with 44px minimum targets.
+- [x] Validate that every question is answered and scroll to the first missing one.
+- [x] Add a near-full-width Submit button with "Submitting..." state.
+- [x] Show the confirmation page after success.
 
 ## Duplicate protection
 
-- [ ] Create the browser token with `crypto.randomUUID()` and store it in localStorage as `cs_anon_token` (D8).
-- [ ] Set `cs_submitted_<surveyId>` after success or `DUPLICATE_RESPONSE`.
-- [ ] Show "already submitted" on page load when the flag exists.
-- [ ] Map every submission error code to its message (`UI.md` §17).
-- [ ] Handle a survey that closes while the student is filling it in.
+- [x] Create the browser token with `crypto.randomUUID()` and store it in localStorage as `cs_anon_token` (D8).
+- [x] Set `cs_submitted_<surveyId>` after success or `DUPLICATE_RESPONSE`.
+- [x] Show "already submitted" on page load when the flag exists.
+- [x] Map every submission error code to its message (`UI.md` §17).
+- [x] Handle a survey that closes while the student is filling it in.
 
 ## Verify & Commit
 
-- [ ] Submit from a real phone against production.
-- [ ] Submit from two different browsers.
-- [ ] A second submission from the same browser shows "already submitted".
-- [ ] Removing only the `cs_submitted_<surveyId>` flag (keeping the token) and resubmitting still fails with `DUPLICATE_RESPONSE`, proving the database enforces it.
-- [ ] Submitting after the survey is closed shows the closed message.
-- [ ] Calling the RPC directly with a choice from another question returns `INVALID_CHOICE`.
-- [ ] Calling the RPC with a missing answer returns `MISSING_REQUIRED_ANSWER`.
-- [ ] The anon key still cannot read responses or answers.
-- [ ] Commit and push.
+- [x] Submit from a real phone against production.
+- [x] Submit from two different browsers.
+- [x] A second submission from the same browser shows "already submitted".
+- [x] Removing only the `cs_submitted_<surveyId>` flag (keeping the token) and resubmitting still fails with `DUPLICATE_RESPONSE`, proving the database enforces it.
+- [x] Submitting after the survey is closed shows the closed message.
+- [x] Calling the RPC directly with a choice from another question returns `INVALID_CHOICE`.
+- [x] Calling the RPC with a missing answer returns `MISSING_REQUIRED_ANSWER`.
+- [x] The anon key still cannot read responses or answers.
+- [x] Commit and push.
 
 ---
 
@@ -251,6 +251,8 @@ Decisions: D7, D10, D13, D15, D16
 
 - [ ] Write `0006_results.sql` with `get_survey_results` (`DATABASE.md` §10).
 - [ ] Revoke execute from `public` and `anon`.
+- [ ] Apply the migration and regenerate `database.types.ts`.
+- [ ] Run `supabase/tests/phase6_rpc_check.sql`.
 
 ## Results
 

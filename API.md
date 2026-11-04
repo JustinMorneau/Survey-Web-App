@@ -396,11 +396,14 @@ Result:
 ```json
 {
   "survey_id": "uuid",
+  "title": "Recursion Concept Check",
+  "status": "closed",
   "response_count": 52,
   "questions": [
     {
       "question_id": "uuid",
       "question_text": "What is required for recursion?",
+      "question_type": "multiple_choice",
       "response_count": 52,
       "choices": [
         {
@@ -435,7 +438,7 @@ supabase
   .order('submitted_at')
 ```
 
-plus the survey's questions and choices.
+plus the survey's questions and choices. Responses are fetched in pages of 1000, because Supabase returns at most 1000 rows per request.
 
 Layout:
 

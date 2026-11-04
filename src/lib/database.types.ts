@@ -214,6 +214,7 @@ export type Database = {
       }
       close_survey: { Args: { p_survey_id: string }; Returns: undefined }
       duplicate_survey: { Args: { p_survey_id: string }; Returns: string }
+      get_survey_results: { Args: { p_survey_id: string }; Returns: Json }
       save_survey: {
         Args: {
           p_description: string

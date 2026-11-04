@@ -486,7 +486,7 @@ Declared `security definer` with `set search_path = ''`, using schema-qualified 
 get_survey_results(p_survey_id uuid) returns jsonb
 ```
 
-Returns the shape in `API.md` §12. For each choice:
+Returns the shape in `API.md` §12, including the survey's `title` and `status` so the results page needs only one request. For each choice:
 
 ```text
 percentage = round(choice_count * 100.0 / question_answer_count, 1)

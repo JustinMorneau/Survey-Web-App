@@ -37,8 +37,9 @@ export function getAllowedActions(status: SurveyStatus): SurveyAction[] {
   return ACTIONS_BY_STATUS[status]
 }
 
-// Actions built so far. Phase 6 adds 'results'.
+// All actions are built as of Phase 6.
 export const IMPLEMENTED_ACTIONS: ReadonlySet<SurveyAction> = new Set<SurveyAction>([
+  'results',
   'edit',
   'activate',
   'present',

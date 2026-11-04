@@ -189,6 +189,8 @@ export default function DashboardPage() {
       }
     } else if (action === 'present') {
       navigate(`/surveys/${survey.id}/present`)
+    } else if (action === 'results') {
+      navigate(`/surveys/${survey.id}/results`)
     } else if (action === 'edit') {
       navigate(`/surveys/${survey.id}/edit`)
     } else if (action === 'duplicate') {

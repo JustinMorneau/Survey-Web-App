@@ -192,14 +192,9 @@ export default function PresentSurveyPage() {
             {isFullscreen ? 'Exit Full Screen' : 'Full Screen'}
           </button>
         )}
-        <button
-          type="button"
-          className={buttonStyles.secondary}
-          disabled
-          title="Available after results are built"
-        >
+        <Link to={`/surveys/${id}/results`} className={buttonStyles.secondary}>
           View Results
-        </button>
+        </Link>
         <button
           type="button"
           className={buttonStyles.danger}

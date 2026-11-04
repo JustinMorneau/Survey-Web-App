@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
 import PresentSurveyPage from './pages/PresentSurveyPage'
+import ResultsPage from './pages/ResultsPage'
 import StudentSurveyPage from './pages/StudentSurveyPage'
 import SurveyEditorPage from './pages/SurveyEditorPage'
 import './index.css'
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
       { path: '/surveys/new', element: <SurveyEditorPage /> },
       { path: '/surveys/:id/edit', element: <SurveyEditorPage /> },
       { path: '/surveys/:id/present', element: <PresentSurveyPage /> },
+      { path: '/surveys/:id/results', element: <ResultsPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },
